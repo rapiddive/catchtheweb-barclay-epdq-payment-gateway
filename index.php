@@ -1,19 +1,18 @@
 <?php
 /*
-Plugin Name: CB Barclay EPDQ Payment Gateway
-Plugin URI:
-Author : Vinay Shah
+Plugin Name: CB BARCLAY EPDQ
+Description: woocommerce epdq
+Plugin URI: http://#
+Author: Vinay Shah
+Author URI: http://vinayshah.in
 Version: 2.1
-Description: EPDQ PAYMENT GATEWAY FOR WOOCOMMERCE
-License: GPL2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License: GPL2
+Text Domain: cb-barclay
 */
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly.
+if( ! defined( 'ABSPATH' ) ) exit;
 
 require 'classes/cb_barclay_payment.php';
 
 global $cb_barclay_payment;
 $cb_barclay_payment = new CB_Barclay_Payment( __FILE__ );
-
-?>

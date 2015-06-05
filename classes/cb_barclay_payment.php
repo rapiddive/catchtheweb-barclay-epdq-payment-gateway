@@ -14,7 +14,7 @@ class CB_Barclay_Payment {
 	public function __construct( $file ){
 		$this->dir = dirname( $file );
 		$this->file = $file;
-		$this->version = '2.0';
+		$this->version = '2.1';
 
 		$this->token = 'cb_barclay';
 
@@ -29,9 +29,17 @@ class CB_Barclay_Payment {
 	 **/
 	private function addHooks(){
 		add_action( 'plugin_loaded', array( $this, 'initBarclayGateway' ) );
-		add_filter( 'woocommerce_payment_gateways', array( &$this, 'methodBarclayGateway') )
+		add_filter( 'woocommerce_payment_gateways', array( $this, 'methodBarclayGateway') );
 	}
 
+	/**
+	 * Function to send require methods to woocommerce for initailization of gateway
+	 * @access public
+	 * @return void
+	 *
+	 */
+
+	
 	/**
 	 * Function to intiate Payment Gateway
 	 *
@@ -42,20 +50,16 @@ class CB_Barclay_Payment {
 
 	public function initBarclayGateway() {
 
-		if ( !class_exists( 'WC_Payment_Gateway' ) ) return;
+		// if ( ! class_exists( 'WC_Payment_Gateway' ) ) return;
 
 		require 'cb_wc_gateway_barclay.php';
 	}
-
-	/**
-	 * Function to send require methods to woocommerce for initailization of gateway
-	 * @access public
-	 * @return void
-	 *
-	 */
 
 	public function methodBarclayGateway( $methods ) {
 		$methods[] = 'CB_WC_Gateway_Barclay';
 		return $methods;
 	}
+
 }
+
+?>
