@@ -179,8 +179,6 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
 
         $order = wc_get_order($order_id);
 
-        var_dump($this->brand_cards);
-        exit;
         // var_dump(get_class_methods($order));
         // exit;
         $barclay_args = array(
