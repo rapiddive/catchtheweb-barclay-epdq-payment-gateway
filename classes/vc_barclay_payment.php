@@ -15,7 +15,7 @@ class VC_Barclay_Payment {
 	public function __construct( $file ) {
 		$this->dir = dirname( $file );
 		$this->file = $file;
-		$this->version = '1.0';
+		$this->version = '2.0';
 
 		$this->token = 'vc_barclay';
 
