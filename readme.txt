@@ -21,15 +21,15 @@ Note on use of plugin
 == License & Legal ==
 
 Catch the web shall not be liable for any direct or indirect loss or damages you may incur or suffer arising out of or in connection with your use of the service or a linked service which shall include without limitation: 
-• Delay or inability to use the service or a Linked service 
-• Reliance upon Third Party Content 
-• Loss of confidentiality 
-• Termination of your access 
-• Virus transmitted 
-• Failure of communication media 
-• Unauthorised access to your server/computer 
-• Theft 
-• Loss or damage to any data or other information or property
+* Delay or inability to use the service or a Linked service 
+* Reliance upon Third Party Content 
+* Loss of confidentiality 
+* Termination of your access 
+* Virus transmitted 
+* Failure of communication media 
+* Unauthorised access to your server/computer 
+* Theft 
+* Loss or damage to any data or other information or property
 
 == Testing ==
 
