@@ -1,19 +1,44 @@
 <?php
-if (!defined('ABSPATH')) exit;
+if (!defined('ABSPATH')) {
+    exit;
+}
 
-class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
+/**
+ * Class RapidDive_WC_Gateway_Barclay
+ */
+class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway
 {
-	/** @var bool Whether or not logging is enabled */
-	public static $log_enabled = true;
+    const TEST_URL = 'https://mdepayments.epdq.co.uk/ncol/test/orderstandard.asp';
+    const LIVE_URL = 'https://payments.epdq.co.uk/ncol/prod/orderstandard.asp';
 
-	/** @var WC_Logger Logger instance */
-	public static $log = true;
+    /**
+     * Whether or not logging is enabled
+     *
+     * @var bool
+     */
+    public static $log_enabled = false;
 
+    /**
+     * Logger instance
+     *
+     * @var WC_Logger
+     */
+    public static $log = false;
+
+    /**
+     * RapidDive_WC_Gateway_Barclay constructor.
+     */
     public function __construct()
     {
-
         $this->id = 'barclay';
-        $this->method_title = 'Barclay ePDQ';
+        $this->method_title = __('Barclay ePDQ', 'woocommerce');
+        $this->order_button_text = __('Proceed to Barcalay ePDQ', 'woocommerce');
+        $this->method_description = __('Barclay ePDQ redirects customers to Barclay to enter their payment information.',
+            'woocommerce');
+        $this->supports = array(
+            'products',
+//            'refunds',
+        );
         $this->icon = plugin_dir_url(__FILE__) . '../assets/barclaycard_logo.png';
 
         // Load the settings.
@@ -24,8 +49,7 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         $this->title = (isset($this->title) && $this->title != '') ? $this->title : 'Barclay ePDQ';
         $this->description = $this->get_option('description');
         $this->access_key = $this->get_option('access_key');
-        $this->test_url = 'https://mdepayments.epdq.co.uk/ncol/test/orderstandard.asp';
-        $this->live_url = 'https://payments.epdq.co.uk/ncol/prod/orderstandard.asp';
+
         $this->status = $this->get_option('status');
         $this->error_notice = $this->get_option('error_notice');
         $this->sha_in = $this->get_option('sha_in');
@@ -38,10 +62,14 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         $this->aavscheck = $this->get_option('aavcheck');
         $this->cvccheck = $this->get_option('cvccheck');
 
-        $this->payment_method = $this->get_option('payment_method');
-        $this->brand_cards = is_array($this->get_option('brand_cards')) ? implode(';', $this->get_option('brand_cards')) : '';
+        $this->payment_method = is_array($this->get_option('payment_method')) ? implode(';',
+            $this->get_option('payment_method')) : '';
+        $this->brand_cards = is_array($this->get_option('brand_cards')) ? implode(';',
+            $this->get_option('brand_cards')) : '';
         $this->secure_3d = $this->get_option('secure_3d');
-        $this->method_list = $this->get_option('method_list');
+//        $this->method_list = $this->get_option('method_list');
+        $this->method_list = is_array($this->get_option('method_list')) ? implode(';',
+            $this->get_option('method_list')) : '';
 
         $this->com_plus = $this->get_option('com_plus');
         $this->param_plus = $this->get_option('param_plus');
@@ -53,12 +81,9 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         $this->api_user_id = $this->get_option('api_user_id');
         $this->api_user_pswd = $this->get_option('api_user_pswd');
 
+        $this->notify_url = WC()->api_request_url('RapidDive_WC_Gateway_Barclay');
 
-        // $this->notify_url = str_replace('https:', 'http:', add_query_arg('wc-api', 'VC_WC_Gateway_Barclay', home_url('/')));
-        $this->notify_url = WC()->api_request_url( 'VC_WC_Gateway_Barclay' );
-
-        //	templating
-
+        // templating
         $this->pp_format = $this->get_option('pp_format ');
         $this->TITLE = $this->get_option('TITLE');
         $this->BGCOLOR = $this->get_option('BGCOLOR');
@@ -73,25 +98,41 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         $this->add_payment_hooks();
     }
 
-    private function add_payment_hooks()
-    {
-        add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-
-        add_action('woocommerce_receipt_barclay', array($this, 'receipt_page'));
-
-        add_action('woocommerce_api_vc_wc_gateway_barclay', array($this, 'check_barclay_response'));
-    }
-
+    /**
+     * Initialise Gateway Settings Form Fields.
+     */
     public function init_form_fields()
     {
-        $this->form_fields = include( 'includes/settings-barclay.php' );
-
+        $this->form_fields = include('includes/settings-barclay.php');
     }
 
     /**
-     * Generate Admin Form
+     *
      */
+    private function add_payment_hooks()
+    {
+        add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+        add_action('woocommerce_receipt_barclay', array($this, 'receipt_page'));
+        add_action('woocommerce_api_rapiddive_wc_gateway_barclay', array($this, 'check_barclay_response'));
+    }
 
+    /**
+     * @param $message
+     * @param string $level
+     */
+    public static function log($message, $level = 'info')
+    {
+        if (self::$log_enabled) {
+            if (empty(self::$log)) {
+                self::$log = wc_get_logger();
+            }
+            self::$log->log($level, $message, array('source' => 'barclay'));
+        }
+    }
+
+    /**
+     *
+     */
     public function admin_options()
     {
         ?>
@@ -102,34 +143,32 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
     }
 
     /**
-     * Processing Payment
+     * @param int $order_id
+     * @return array
      */
-
     public function process_payment($order_id)
     {
-
         $order = wc_get_order($order_id);
-
         return array(
             'result' => 'success',
             'redirect' => $order->get_checkout_payment_url(true)
         );
-
     }
 
+    /**
+     * @param $order
+     */
     public function receipt_page($order)
     {
-        echo '<p>' . __('Thank you for your order, please click the button below to pay with Barclay ePDQ.', 'woocommerce') . '</p>';
+        echo '<p>' . __('Thank you for your order, please click the button below to pay with Barclay ePDQ.',
+                'woocommerce') . '</p>';
         echo $this->generate_barclay_form($order);
     }
 
-    function payment_fields()
-    {
-        echo '<img src="' . plugin_dir_url(__FILE__) . '../assets/epdq.gif"/>';
-        if ($description = $this->get_description())
-            echo wpautop(wptexturize($description));
-    }
-
+    /**
+     * @param $order
+     * @return string
+     */
     public function generate_barclay_form($order)
     {
         $order = wc_get_order($order);
@@ -140,7 +179,9 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
 
         ksort($barclay_args);
         foreach ($barclay_args as $key => $value) {
-            if ($value == '') continue;
+            if ($value == '') {
+                continue;
+            }
             $shasign_arg[] = $key . '=' . $value;
         }
 
@@ -154,26 +195,33 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
 
         $barclay_html_args = array();
         foreach ($barclay_args as $key => $value) {
-            if ($value == '') continue;
+            if ($value == '') {
+                continue;
+            }
             $barclay_html_args[] = '<input type="hidden" name="' . $key . '" value="' . $value . '"/>';
         }
 
         if (isset($this->status) && ($this->status == 'test' || $this->status == 'live')) {
-            $url = $this->status == 'test' ? $this->test_url : $this->live_url;
+            $url = $this->status == 'test' ? self::TEST_URL : self::LIVE_URL;
 
             return
                 '<form action="' . esc_url($url) . '" method="post" id="epdq_payment_form">' .
                 implode('', $barclay_html_args) .
                 '<input type="hidden" name="SHASIGN" value="' . $shasign . '"/>' .
-                '<input type="submit" class="button alt" id="submit_epdq_payment_form" value="' . __('Pay via Barclay ePDQ', 'woocommerce') . '" />' .
-                '<a class="button cancel" href="' . esc_url_raw( $order->get_cancel_order_url_raw() ) . '">' . __('Cancel order &amp; restore cart', 'woocommerce') . '</a>' .
+                '<input type="submit" class="button alt" id="submit_epdq_payment_form" value="' . __('Pay via Barclay ePDQ',
+                    'woocommerce') . '" />' .
+                '<a class="button cancel" href="' . esc_url($order->get_cancel_order_url()) . '">' . __('Cancel order &amp; restore cart',
+                    'woocommerce') . '</a>' .
                 '</form>';
         } else {
             return '<p class="error">' . $this->error_notice . '</p>';
         }
     }
 
-
+    /**
+     * @param $order_id
+     * @return array
+     */
     public function get_barclay_fields($order_id)
     {
 
@@ -200,7 +248,7 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
             'DECLINEURL' => $this->notify_url,
             'EXCEPTIONURL' => $this->notify_url,
             // 'CANCELURL' => $this->notify_url,
-            'CANCELURL' => esc_url_raw( $order->get_cancel_order_url_raw() ),
+            'CANCELURL' => esc_url_raw($order->get_cancel_order_url_raw()),
             'BACKURL' => '',
             'HOMEURL' => '',
             'CATALOGURL' => get_permalink($this->cat_url),
@@ -238,6 +286,20 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         return $barclay_args;
     }
 
+    /**
+     *
+     */
+    function payment_fields()
+    {
+        echo '<img src="' . plugin_dir_url(__FILE__) . '../assets/epdq.gif"/>';
+        if ($description = $this->get_description()) {
+            echo wpautop(wptexturize($description));
+        }
+    }
+
+    /**
+     *
+     */
     function check_barclay_response()
     {
         ob_clean();
@@ -257,12 +319,16 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         $verify = $this->checkShaOut($datacheck);
 
         if ($verify) {
-        	$this->transaction_successfull($datacheck1);
+            $this->transaction_successfull($datacheck1);
         } else {
-        	wp_die('Transaction is unsuccessfull!');
+            wp_die('Transaction is unsuccessfull!');
         }
     }
 
+    /**
+     * @param $datacheck
+     * @return bool
+     */
     protected function checkShaOut($datacheck)
     {
         $shaout = $this->sha_out;
@@ -289,6 +355,9 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         }
     }
 
+    /**
+     * @param $args
+     */
     function transaction_successfull($args)
     {
         global $woocommerce;
@@ -311,63 +380,90 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
 
         if (in_array($STATUS, $accepted)) {
 
-            if (!empty($args['ORDERID']))
-                $note = 'Order ID: ' . $ORDERID . '.<br>'; //	order id 
-            if (!empty($args['AMOUNT']))
-                $note .= 'Amount: ' . $AMOUNT . '.<br>'; //	amount    		
-            if (!empty($args['CURRENCY']))
-                $note .= 'Order currency: ' . $CURRENCY . '.<br>'; //	order currency
-            if (!empty($args['PM']))
-                $note .= 'Payment Method: ' . $PM . '.<br>'; //	payment method
-            if (!empty($args['ACCEPTANCE']))
-                $note .= 'Acceptance code returned by acquirer: ' . $ACCEPTANCE . '.<br>';    //	acceptance
-            if (!empty($args['STATUS']))
-                $note .= 'Transaction status : ' . $STATUS . '.<br>'; //	status code
-            if (!empty($args['CARDNO']))
-                $note .= 'Masked card number : ' . $CARDNO . '.<br>'; //	catd no
-            if (!empty($args['PAYID']))
-                $note .= 'Payment reference in EPDQ system: ' . $PAYID . '.<br>'; //	pay id
-            if (!empty($args['NCERROR']))
-                $note .= 'Error Code: ' . $NCERROR . '.<br>'; //	ncerror
-            if (!empty($args['BRAND']))
-                $note .= 'Card brand (EPDQ system derives this from the card number) : ' . $BRAND . '.<br>'; //	brand
-            if (!empty($args['ED']))
-                $note .= 'Payer\'s card expiry date : ' . $ED . '.<br>'; //	expiry date
-            if (!empty($args['TRXDATE']))
-                $note .= 'Transaction Date: ' . $TRXDATE . '.<br>'; //	date
-            if (!empty($args['CN']))
-                $note .= 'Cardholder/customer name: ' . $CN . '.<br>'; //	payer's name
-            if (!empty($args['IP']))
-                $note .= 'Customer\'s IP: ' . $IP . '.<br>'; //	payer's ip
+            if (!empty($args['ORDERID'])) {
+                $note = 'Order ID: ' . $ORDERID . '.<br>';
+            } //	order id
+            if (!empty($args['AMOUNT'])) {
+                $note .= 'Amount: ' . $AMOUNT . '.<br>';
+            } //	amount
+            if (!empty($args['CURRENCY'])) {
+                $note .= 'Order currency: ' . $CURRENCY . '.<br>';
+            } //	order currency
+            if (!empty($args['PM'])) {
+                $note .= 'Payment Method: ' . $PM . '.<br>';
+            } //	payment method
+            if (!empty($args['ACCEPTANCE'])) {
+                $note .= 'Acceptance code returned by acquirer: ' . $ACCEPTANCE . '.<br>';
+            }    //	acceptance
+            if (!empty($args['STATUS'])) {
+                $note .= 'Transaction status : ' . $STATUS . '.<br>';
+            } //	status code
+            if (!empty($args['CARDNO'])) {
+                $note .= 'Masked card number : ' . $CARDNO . '.<br>';
+            } //	catd no
+            if (!empty($args['PAYID'])) {
+                $note .= 'Payment reference in EPDQ system: ' . $PAYID . '.<br>';
+            } //	pay id
+            if (!empty($args['NCERROR'])) {
+                $note .= 'Error Code: ' . $NCERROR . '.<br>';
+            } //	ncerror
+            if (!empty($args['BRAND'])) {
+                $note .= 'Card brand (EPDQ system derives this from the card number) : ' . $BRAND . '.<br>';
+            } //	brand
+            if (!empty($args['ED'])) {
+                $note .= 'Payer\'s card expiry date : ' . $ED . '.<br>';
+            } //	expiry date
+            if (!empty($args['TRXDATE'])) {
+                $note .= 'Transaction Date: ' . $TRXDATE . '.<br>';
+            } //	date
+            if (!empty($args['CN'])) {
+                $note .= 'Cardholder/customer name: ' . $CN . '.<br>';
+            } //	payer's name
+            if (!empty($args['IP'])) {
+                $note .= 'Customer\'s IP: ' . $IP . '.<br>';
+            } //	payer's ip
 
 
-            if (!empty($args['AAVADDRESS']))
-                $note .= 'AAV result for the address: ' . $AAVADDRESS . ' . <br>'; //	aav address
-            if (!empty($args['AAVCHECK']))
-                $note .= 'Result of the automatic address verification: ' . $AAVCHECK . ' . <br>'; //	aav check
-            if (!empty($args['AAVZIP']))
-                $note .= 'AAV result for the zip code: ' . $AAVZIP . ' . <br>'; // aav zip
-            if (!empty($args['BIN']))
-                $note .= 'First 6 digits of credit card number: ' . $BIN . ' . <br>'; // bin
-            if (!empty($args['CCCTY']))
+            if (!empty($args['AAVADDRESS'])) {
+                $note .= 'AAV result for the address: ' . $AAVADDRESS . ' . <br>';
+            } //	aav address
+            if (!empty($args['AAVCHECK'])) {
+                $note .= 'Result of the automatic address verification: ' . $AAVCHECK . ' . <br>';
+            } //	aav check
+            if (!empty($args['AAVZIP'])) {
+                $note .= 'AAV result for the zip code: ' . $AAVZIP . ' . <br>';
+            } // aav zip
+            if (!empty($args['BIN'])) {
+                $note .= 'First 6 digits of credit card number: ' . $BIN . ' . <br>';
+            } // bin
+            if (!empty($args['CCCTY'])) {
                 $note .= 'Country where the card was issued: ' . $CCCTY . ' . <br>';
-            if (!empty($args['COMPLUS']))
+            }
+            if (!empty($args['COMPLUS'])) {
                 $note .= 'Custom value passed: ' . $COMPLUS . ' . <br>';
+            }
 
-            if (!empty($args['CVCCHECK']))
+            if (!empty($args['CVCCHECK'])) {
                 $note .= 'Result of the card verification code check: ' . $CVCCHECK . ' . <br>';
-            if (!empty($args['ECI']))
+            }
+            if (!empty($args['ECI'])) {
                 $note .= 'Electronic Commerce Indicator: ' . $ECI . ' . <br>';
-            if (!empty($args['FXAMOUNT']))
+            }
+            if (!empty($args['FXAMOUNT'])) {
                 $note .= 'FXAMOUNT: ' . $FXAMOUNT . ' . <br>';
-            if (!empty($args['FXCURRENCY']))
+            }
+            if (!empty($args['FXCURRENCY'])) {
                 $note .= 'FXCURRENCY: ' . $FXCURRENCY . ' . <br>';
-            if (!empty($args['IPCTY']))
+            }
+            if (!empty($args['IPCTY'])) {
                 $note .= 'Originating country of the IP address: ' . $IPCTY . ' . <br>';
-            if (!empty($args['SUBBRAND']))
+            }
+            if (!empty($args['SUBBRAND'])) {
                 $note .= 'SUBBRAND: ' . $SUBBRAND . ' . <br>';
-            if (!empty($args['VC']))
+            }
+            if (!empty($args['VC'])) {
                 $note .= 'Virtual Card type: ' . $SUBBRAND . ' . <br>';
+            }
 
 
             $woocommerce->cart->empty_cart();
@@ -407,71 +503,15 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
         exit;
     }
 
-    public static function log( $message, $level = 'info' ) {
-		if ( self::$log_enabled ) {
-			if ( empty( self::$log ) ) {
-				self::$log = wc_get_logger();
-			}
-			self::$log->log( $level, $message, array( 'source' => 'barclay' ) );
-		}
-	}
-
     /**
-     * Get the transaction URL.
-     *
-     * @param  WC_Order $order
-     *
-     * @return string
+     * @param $code
+     * @return mixed|string|void
      */
-
-    public function get_transaction_url($order)
-    {
-        if ('live' == $this->status) {
-            $this->view_transaction_url = $this->live_url;
-        } else {
-            $this->view_transaction_url = $this->test_url;
-        }
-
-        return parent::get_transaction_url($order);
-    }
-
-    /**
-     * Validate Text Field.
-     *
-     * Make sure the data is escaped correctly, etc.
-     *
-     * @access public
-     * @param mixed $key
-     * @since 1.0.0
-     * @return string
-     */
-    /*public function validate_text_field( $key ) {
-        $text = $this->get_option( $key );
-
-        if ( isset( $_POST[ $this->plugin_id . $this->id . '_' . $key ] ) ) {
-            
-            $text = trim( stripslashes( $_POST[ $this->plugin_id . $this->id . '_' . $key ] ) );
-            if( preg_match('/#[0-9a-fA-F]{3,6}/', $text) ){
-                return $text;
-            }
-            else
-                $text = esc_attr( $text );
-        }
-    
-        return $text;
-    }*/
-
-    public function validate_text_field($key, $value)
-    {
-        $value = is_null($value) ? '' : $value;
-        return wp_kses_post(trim(stripslashes($value)));
-    }
-
-
     function get_barclay_status_code($code)
     {
-        if ($code == '')
+        if ($code == '') {
             return;
+        }
         $codes = array(
             0 => 'Incomplete or invalid',
             1 => 'Cancelled by client',
@@ -514,16 +554,22 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
             98 => 'Being processed - intermediate technical status',
             99 => 'Being processed - intermediate technical status'
         );
-        if (isset($codes[$code]))
+        if (isset($codes[$code])) {
             return $codes[$code];
-        else
+        } else {
             return 'Unknown';
+        }
     }
 
+    /**
+     * @param $code
+     * @return mixed|string|void
+     */
     function get_barclay_ncerror($code)
     {
-        if ($code == '')
+        if ($code == '') {
             return;
+        }
 
         $code = (int)$code;
         $ncerorr_list = array(
@@ -1045,9 +1091,35 @@ class VC_WC_Gateway_Barclay extends WC_Payment_Gateway
             60001153 => 'Payer\'s account number not know.',
         );
 
-        if (isset($ncerorr_list[$code]))
+        if (isset($ncerorr_list[$code])) {
             return $ncerorr_list[$code];
-        else
+        } else {
             return 'Unknown';
+        }
+    }
+
+    /**
+     * @param WC_Order $order
+     * @return string
+     */
+    public function get_transaction_url($order)
+    {
+        if ('live' == $this->status) {
+            $this->view_transaction_url = self::LIVE_URL;
+        } else {
+            $this->view_transaction_url = self::TEST_URL;
+        }
+        return parent::get_transaction_url($order);
+    }
+
+    /**
+     * @param string $key
+     * @param string $value
+     * @return string
+     */
+    public function validate_text_field($key, $value)
+    {
+        $value = is_null($value) ? '' : $value;
+        return wp_kses_post(trim(stripslashes($value)));
     }
 }

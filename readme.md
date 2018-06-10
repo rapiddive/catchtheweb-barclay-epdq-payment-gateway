@@ -1,14 +1,14 @@
-=== Catchtheweb BARCLAY ePDQ Payment Gateway ===
+=== RapidDive BARCLAY ePDQ Payment Gateway ===
 Contributors: vinayshah5
 Donate link: https://www.paypal.me/vinayshah5
-Tags: woocommerce, payment gateway, barclay, epdq
-Requires at least: 4.0.1
-Tested up to: 4.3
-Stable tag: 4.3
+Tags: woo commerce, payment gateway, barclay, ePDQ
+Requires at least: 4.9.6
+Tested up to: 4.9.6
+Stable tag: 4.9.6
 License: GPLv3 or later License
 URI: http://www.gnu.org/licenses/gpl-3.0.html
-WC requires at least: 2.2
-WC tested up to: 2.3
+WC requires at least: 3.4.2
+WC tested up to: 3.4.2
 
 Barclay ePDQ Payment Gateway is empowered to integrate Barclay CARD ePDQ payment gateway with woo commerce.
 
@@ -53,8 +53,10 @@ We would also recommend that you set up the "test" Barclays back office and enab
 = 2.0 =
 1. Initial Stable Release of Plugin.
 
-== Arbitrary section ==
+= 2.2 =
+1. Fixed Issue For latest woo commerce version.
 
+== ePDQ Documentation ==
 [ePDQ Back Office Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_Back-Office_EN.pdf)
 [ePDQ User Manager User Guide](https://mdepayments.epdq.co.uk/Ncol/ePDQ_USR_EN.pdf)
 [ePDQ Integration Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_e-COM-ADV_EN.pdf)
