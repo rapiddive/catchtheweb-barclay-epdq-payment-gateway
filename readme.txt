@@ -1,4 +1,4 @@
-=== RapidDive BARCLAY ePDQ Payment Gateway ===
+=== **RapidDive** BARCLAY ePDQ Payment Gateway ===
 Contributors: vinayshah5
 Donate link: https://www.paypal.me/vinayshah5
 Tags: woo commerce, payment gateway, barclay, ePDQ
@@ -20,7 +20,7 @@ Note on use of plugin
 
 == License & Legal ==
 
-Catch the web shall not be liable for any direct or indirect loss or damages you may incur or suffer arising out of or in connection with your use of the service or a linked service which shall include without limitation: 
+RapidDive shall not be liable for any direct or indirect loss or damages you may incur or suffer arising out of or in connection with your use of the service or a linked service which shall include without limitation: 
 * Delay or inability to use the service or a Linked service 
 * Reliance upon Third Party Content 
 * Loss of confidentiality 
