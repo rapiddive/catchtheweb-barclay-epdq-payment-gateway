@@ -56,6 +56,9 @@ We would also recommend that you set up the "test" Barclays back office and enab
 = 2.2 =
 1. Fixed Issue For latest woo commerce version.
 
+= 2.3 =
+1. Show Accepted Cards in Description
+
 == ePDQ Documentation ==
 [ePDQ Back Office Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_Back-Office_EN.pdf)
 [ePDQ User Manager User Guide](https://mdepayments.epdq.co.uk/Ncol/ePDQ_USR_EN.pdf)

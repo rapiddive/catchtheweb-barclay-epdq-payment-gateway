@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * Class RapidDive_WC_Gateway_Barclay
+ * @property string showLogo
  */
 class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway
 {
@@ -24,6 +25,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway
      * @var WC_Logger
      */
     public static $log = false;
+    protected $access_key;
 
     /**
      * RapidDive_WC_Gateway_Barclay constructor.
@@ -46,9 +48,10 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway
         $this->init_settings();
 
         $this->title = $this->get_option('title');
-        $this->title = (isset($this->title) && $this->title != '') ? $this->title : 'Barclay ePDQ';
+        $this->title = ($this->title !== null && $this->title !== '') ? $this->title : __('Barclay ePDQ', 'woocommerce');
         $this->description = $this->get_option('description');
         $this->access_key = $this->get_option('access_key');
+        $this->showLogo = $this->get_option('show_logo');
 
         $this->status = $this->get_option('status');
         $this->error_notice = $this->get_option('error_notice');
@@ -123,7 +126,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway
     public static function log($message, $level = 'info')
     {
         if (self::$log_enabled) {
-            if (empty(self::$log)) {
+            if (self::$log === null) {
                 self::$log = wc_get_logger();
             }
             self::$log->log($level, $message, array('source' => 'barclay'));
@@ -289,9 +292,11 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway
     /**
      *
      */
-    function payment_fields()
+    public function payment_fields()
     {
-        echo '<img src="' . plugin_dir_url(__FILE__) . '../assets/epdq.gif"/>';
+        if ($this->showLogo === 'yes') {
+            echo '<img src="' . plugin_dir_url(__FILE__) . '../assets/epdq.gif"/>';
+        }
         if ($description = $this->get_description()) {
             echo wpautop(wptexturize($description));
         }

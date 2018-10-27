@@ -221,6 +221,12 @@ return array(
         'default' => '',//VISA;iDEA
         'desc_tip' => false,
     ),
+    'show_logo' => array(
+        'title' => __('Show Barclay Accepted Card on Payment Page', 'woocommerce'),
+        'type' => 'checkbox',
+        'label' => __('Show Barclay Accepted Card on Payment Page', 'woocommerce'),
+        'default' => 'yes'
+    ),
     'pp_format' => array(
         'title' => __('Payment Page', 'woocommerce'),
         'type' => 'checkbox',
