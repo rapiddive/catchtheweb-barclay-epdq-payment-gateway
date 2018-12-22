@@ -17,9 +17,9 @@ class RapidDive_Barclay_Payment
      */
     public function __construct($file)
     {
-        $this->dir = dirname($file);
-        $this->file = $file;
-        $this->version = '2.2.0';
+        $this->dir     = dirname($file);
+        $this->file    = $file;
+	    $this->version = '2.3.1';
 
         $this->token = 'rapiddive-barclay';
 

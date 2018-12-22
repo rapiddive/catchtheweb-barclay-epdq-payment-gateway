@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name: RapidDive BARCLAY ePDQ Payment Gateway
- * Plugin URI: http://rapiddive.com/barclaycard-epdq-payment-gateway.html
+ * Plugin URI: https://rapiddive.com/barclaycard-epdq-payment-gateway.html
  * Description: Barclay Card ePDQ payment gateway integration for woocommerce users.
- * Version: 2.2.0
+ * Version: 2.3.1
  * Author: Vinay Shah
- * Author URI: http://vinayshah.in
+ * Author URI: https://vinayshah.in
  * Developer: Vinay Shah
- * Developer URI: http://vinayshah.in
+ * Developer URI: https://vinayshah.in
  * Text Domain: rapiddive-barclay
  *
  * Copyright: © 2009-2015 WooCommerce.
@@ -22,7 +22,8 @@ if (!defined('ABSPATH')) {
 /**
  * Check if WooCommerce is active
  **/
-if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ),
+	true ) ) {
     require 'classes/rapiddive_barclay_payment.php';
 
     global $rapiddive_barclay_payment;
