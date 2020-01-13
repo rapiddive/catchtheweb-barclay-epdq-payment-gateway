@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RapidDive BARCLAY ePDQ Payment Gateway
  * Plugin URI: https://rapiddive.com/barclaycard-epdq-payment-gateway.html
- * Description: Barclay Card ePDQ payment gateway integration for woocommerce users.
+ * Description: Barclay Card ePDQ payment gateway integration for woocommerce users  .
  * Version: 2.3.1
  * Author: Vinay Shah
  * Author URI: https://vinayshah.in
