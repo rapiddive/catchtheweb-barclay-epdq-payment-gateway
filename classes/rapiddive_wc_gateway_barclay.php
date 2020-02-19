@@ -32,8 +32,8 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	public function __construct() {
 		$this->id                 = 'barclay';
 		$this->method_title       = __( 'Barclay ePDQ', 'woocommerce' );
-		$this->order_button_text  = __( 'Proceed to Barcalay ePDQ', 'woocommerce' );
-		$this->method_description = __( 'Barclay ePDQ redirects customers to Barclay to enter their payment information.',
+		$this->order_button_text  = __( 'Proceed to Barclaycard ePDQ', 'woocommerce' );
+		$this->method_description = __( 'Barclay ePDQ redirects customers to Barclaycard to enter their payment information.',
 			'woocommerce' );
 		$this->supports           = [
 			'products',
