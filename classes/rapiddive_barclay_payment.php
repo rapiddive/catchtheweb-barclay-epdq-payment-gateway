@@ -19,7 +19,7 @@ class RapidDive_Barclay_Payment
     {
         $this->dir     = dirname($file);
         $this->file    = $file;
-	    $this->version = '2.3.1';
+	    $this->version = '2.3.2';
 
         $this->token = 'rapiddive-barclay';
 
