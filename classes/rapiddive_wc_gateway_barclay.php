@@ -13,25 +13,69 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	public const TEST_URL = 'https://mdepayments.epdq.co.uk/ncol/test/orderstandard.asp';
 	public const LIVE_URL = 'https://payments.epdq.co.uk/ncol/prod/orderstandard.asp';
 	public const BARCLAY_PAYMENT_SEPARATOR = ';';
-
 	/**
 	 * Whether or not logging is enabled
 	 *
 	 * @var bool
 	 */
 	public static $log_enabled = false;
-
 	/**
 	 * Logger instance
 	 *
 	 * @var WC_Logger
 	 */
 	public static $log = false;
-
 	/**
 	 * @var string
 	 */
 	protected $access_key;
+
+	/**
+	 * @var string[]
+	 */
+	private $paymentStatusCodes = [
+		0  => 'Invalid or incomplete',
+		1  => 'Cancelled by customer',
+		2  => 'Authorisation declined',
+		4  => 'Order stored',
+		40 => 'Stored waiting external result',
+		41 => 'Waiting for client payment',
+		46 => 'Waiting authentication',
+		5  => 'Authorised',
+		50 => 'Authorized waiting external result',
+		51 => 'Authorisation waiting',
+		52 => 'Authorisation not known',
+		55 => 'Standby',
+		56 => 'OK with scheduled payments',
+		57 => 'Not OK with scheduled payments',
+		59 => 'Authoris. to be requested manually',
+		6  => 'Authorised and cancelled',
+		61 => 'Author. deletion waiting',
+		62 => 'Author. deletion uncertain',
+		63 => 'Author. deletion refused',
+		64 => 'Authorised and cancelled',
+		7  => 'Payment deleted',
+		71 => 'Payment deletion pending',
+		72 => 'Payment deletion uncertain',
+		73 => 'Payment deletion refused',
+		74 => 'Payment deleted',
+		75 => 'Deletion handled by merchant',
+		8  => 'Refund',
+		81 => 'Refund pending',
+		82 => 'Refund uncertain',
+		83 => 'Refund refused',
+		84 => 'Refund',
+		85 => 'Refund handled by merchant',
+		9  => 'Payment requested',
+		91 => 'Payment processing',
+		92 => 'Payment uncertain',
+		93 => 'Payment refused',
+		94 => 'Refund declined by the acquirer',
+		95 => 'Payment handled by merchant',
+		96 => 'Refund reversed',
+		99 => 'Being processed'
+	];
+
 	/**
 	 * @var string
 	 */
@@ -77,7 +121,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$this->sha_method   = $this->get_option( 'sha_method' );
 		$this->sha_method   = ( $this->sha_method != '' ) ? $this->sha_method : 0;
 
-		$this->cat_url = woocommerce_get_page_id( 'shop' );
+		$this->cat_url = wc_get_page_id( 'shop' );
 
 		$this->aavscheck = $this->get_option( 'aavcheck' );
 		$this->cvccheck  = $this->get_option( 'cvccheck' );
@@ -132,25 +176,12 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 *
+	 * Payment Hooks
 	 */
 	private function add_payment_hooks() {
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
 		add_action( 'woocommerce_receipt_barclay', [ $this, 'receipt_page' ] );
 		add_action( 'woocommerce_api_rapiddive_wc_gateway_barclay', [ $this, 'check_barclay_response' ] );
-	}
-
-	/**
-	 * @param $message
-	 * @param string $level
-	 */
-	public static function log( $message, $level = 'info' ) {
-		if ( self::$log_enabled ) {
-			if ( self::$log === null ) {
-				self::$log = wc_get_logger();
-			}
-			self::$log->log( $level, $message, [ 'source' => 'barclay' ] );
-		}
 	}
 
 	/**
@@ -356,23 +387,21 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * @param array $datacheck
+	 * @param array $dataCheck
 	 *
 	 * @return bool
 	 */
-	protected function checkShaOut( array $datacheck ) {
+	protected function checkShaOut( array $dataCheck ) {
 		$shaout = $this->sha_out;
 
-		$origsig = $datacheck['SHASIGN'];
+		$origsig = $dataCheck['SHASIGN'];
 
-		unset( $datacheck['SHASIGN'] );
-		unset( $datacheck['wc-api'] );
+		unset( $dataCheck['SHASIGN'], $dataCheck['wc-api'] );
 
-		uksort( $datacheck, 'strcasecmp' );
-		$shasign = "";
+		uksort( $dataCheck, 'strcasecmp' );
 
 		$shasig = null;
-		foreach ( $datacheck as $key => $value ) {
+		foreach ( $dataCheck as $key => $value ) {
 			$shasig .= trim( strtoupper( $key ) ) . '=' . utf8_encode( trim( $value ) ) . $shaout;
 		}
 
@@ -384,6 +413,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			return false;
 		}
 	}
+
 
 	/**
 	 * @param $args
@@ -527,67 +557,23 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$order->update_status( 'failed', $dienote );
 			$woocommerce->cart->empty_cart();
 		}
-
+		self::log( $dienote );
 		wp_redirect( $this->get_return_url( $order ) );
 		exit;
 	}
 
 	/**
-	 * @param $code
+	 * @param int|string $code
 	 *
-	 * @return mixed|string|void
+	 * @return string
 	 */
 	public function get_barclay_status_code( $code ) {
+		$code = (int) $code;
 		if ( $code == '' ) {
-			return;
+			return '';
 		}
-		$codes = [
-			0  => 'Incomplete or invalid',
-			1  => 'Cancelled by client',
-			2  => 'Authorisation refused',
-			4  => 'Order stored',
-			40 => 'Stored waiting external result',
-			41 => 'Waiting client payment',
-			5  => 'Authorised',
-			51 => 'Authorisation waiting',
-			52 => 'Authorisation not known',
-			55 => 'Standby',
-			56 => 'OK with scheduled payments',
-			57 => 'Not OK with scheduled payments',
-			59 => 'Author. to get manually',
-			6  => 'Authorised and canceled',
-			61 => 'Author. deletion waiting',
-			62 => 'Author. deletion uncertain',
-			63 => 'Author. deletion refused',
-			64 => 'Authorised and cancelled',
-			7  => 'Payment deleted',
-			71 => 'Payment deletion pending',
-			72 => 'Payment deletion uncertain',
-			73 => 'Payment deletion refused',
-			74 => 'Payment deleted (not accepted)',
-			75 => 'Deletion processed by merchant',
-			8  => 'Refund',
-			81 => 'Refund pending',
-			82 => 'Refund uncertain',
-			83 => 'Refund refused',
-			84 => 'Payment declined by the acquirer (will be debited)',
-			85 => 'Refund processed by merchant',
-			9  => 'Payment requested',
-			91 => 'Payment processing',
-			92 => 'Payment uncertain',
-			93 => 'Payment refused',
-			94 => 'Refund declined by the acquirer',
-			95 => 'Payment processed by merchant',
-			96 => 'Refund reversed',
-			97 => 'Being processed - intermediate technical status',
-			98 => 'Being processed - intermediate technical status',
-			99 => 'Being processed - intermediate technical status',
-		];
-		if ( isset( $codes[ $code ] ) ) {
-			return $codes[ $code ];
-		} else {
-			return 'Unknown';
-		}
+
+		return $this->paymentStatusCodes[ $code ] ?? 'Unknown Code';
 	}
 
 	/**
@@ -1124,6 +1110,19 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			return $ncerorr_list[ $code ];
 		} else {
 			return 'Unknown';
+		}
+	}
+
+	/**
+	 * @param $message
+	 * @param string $level
+	 */
+	public static function log( $message, $level = 'info' ) {
+		if ( self::$log_enabled ) {
+			if ( self::$log === null ) {
+				self::$log = wc_get_logger();
+			}
+			self::$log->log( $level, $message, [ 'source' => 'barclay' ] );
 		}
 	}
 
