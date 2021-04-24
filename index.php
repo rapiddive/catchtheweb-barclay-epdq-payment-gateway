@@ -15,6 +15,7 @@
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
 
+declare(strict_types=1);
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -22,8 +23,11 @@ if (!defined('ABSPATH')) {
 /**
  * Check if WooCommerce is active
  **/
-if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ),
-	true ) ) {
+if (in_array(
+    'woocommerce/woocommerce.php',
+    apply_filters('active_plugins', get_option('active_plugins')),
+    true
+)) {
     require 'classes/rapiddive_barclay_payment.php';
 
     global $rapiddive_barclay_payment;

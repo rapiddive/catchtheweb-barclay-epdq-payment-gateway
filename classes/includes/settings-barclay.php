@@ -1,10 +1,9 @@
 <?php
-/**
- * Settings for PayPal Gateway.
- *
- * @package WooCommerce/Classes/Payment
- */
 
+/**
+ * Settings for Barclay Gateway.
+ */
+declare( strict_types=1 );
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -16,6 +15,16 @@ return [
 		'type'    => 'checkbox',
 		'label'   => __( 'Enable Barclay ePDQ Checkout', 'woocommerce' ),
 		'default' => 'no',
+	],
+	'debug'          => [
+		'title'       => __( 'Debug log', 'woocommerce' ),
+		'type'        => 'checkbox',
+		'label'       => __( 'Enable logging', 'woocommerce' ),
+		'default'     => 'no',
+		/* translators: %s: URL */
+		'description' => sprintf( __( 'Log Barclay ePDQ events, such as IPN requests, inside %s Note: this may log personal information. We recommend using this for debugging purposes only and deleting the logs when finished.',
+		                              'woocommerce' ),
+		                          '<code>' . WC_Log_Handler_File::get_log_file_path( 'barclay' ) . '</code>' ),
 	],
 	'aavcheck'       => [
 		'title'       => __( 'AAVCHECK.', 'woocommerce' ),
@@ -47,7 +56,7 @@ return [
 		'title'       => __( 'Title', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'Title of the payment process. This name will be visible throughout the site and the payment page.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => 'Barclay ePDQ Checkout',
 		'desc_tip'    => true,
 	],
@@ -55,7 +64,7 @@ return [
 		'title'       => __( 'Description', 'woocommerce' ),
 		'type'        => 'textarea',
 		'description' => __( 'Description of the payment process. This description will be visible throuhout the site and the payment page.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => 'Use the payment processor of barclay bank and checkout with your debit/credit card.',
 		'desc_tip'    => true,
 	],
@@ -63,7 +72,7 @@ return [
 		'title'       => __( 'PSPID', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'The PSPID for your Barclay account. This is the id which you use to login to the admin panel of the barclay bank.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',
 		'desc_tip'    => true,
 	],
@@ -72,7 +81,7 @@ return [
 		'type'        => 'select',
 		'options'     => [ 'test' => 'Test Environment', 'live' => 'Live Store' ],
 		'description' => __( 'The status of your store indicates whether you actually ready to run your shop or if it\'s still a test environment. If the test is selected then no payments will be processed. For details please refer to the user guide provided by the Barclay EPDQ service.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',
 		'desc_tip'    => true,
 	],
@@ -80,7 +89,7 @@ return [
 		'title'       => __( 'SHA-IN Passphrase', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'The SHA-IN signature will encode the parameter passed to the payment processor via the hidden fields to ensure better security.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',
 		'desc_tip'    => true,
 	],
@@ -88,7 +97,7 @@ return [
 		'title'       => __( 'SHA-OUT Passphrase', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'The SHA-OUT signature will encode the parameter passed to the redirection url from the payment processor to ensure better security.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => 0,
 		'desc_tip'    => true,
 	],
@@ -97,7 +106,7 @@ return [
 		'type'        => 'select',
 		'options'     => [ 0 => 'SHA-1', 1 => 'SHA-256', 2 => 'SHA-512' ],
 		'description' => __( 'SHA encryption method - this needs to be similar to what you have set in the EPDQ backoffice.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',
 		'desc_tip'    => true,
 	],
@@ -105,7 +114,7 @@ return [
 		'title'       => __( 'Error Notice', 'woocommerce' ),
 		'type'        => 'textarea',
 		'description' => __( 'In case if there something went wrong while checking out what message will be displayed to the customer.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',
 		'desc_tip'    => true,
 	],
@@ -132,7 +141,7 @@ return [
 		'class'             => 'wc-enhanced-select',
 		'css'               => 'width: 400px;',
 		'description'       => __( 'Brand of Cards Selected by the Merchant eg. VISA, MAESTRO. If blank all cards accepted',
-			'woocommerce' ),
+		                           'woocommerce' ),
 		'default'           => '',
 		'desc_tip'          => true,
 		'options'           => [
@@ -152,7 +161,7 @@ return [
 		'type'        => 'select',
 		'options'     => [ 'MAINW' => 'Main Window (Default)', 'POPUP' => 'Popup window' ],
 		'description' => __( 'Require Secure 3D Payments Main Windows is default as recommended as many card services do not support them',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => 'MAINW',
 		'desc_tip'    => false,
 	],
@@ -160,7 +169,7 @@ return [
 		'title'             => __( 'Payment Method List', 'woocommerce' ),
 		'type'              => 'multiselect',
 		'description'       => __( 'List of CARD services accepted for payments seperated by eg:VISA;iDEA',
-			'woocommerce' ),
+		                           'woocommerce' ),
 		'class'             => 'wc-enhanced-select',
 		'css'               => 'width: 400px;',
 		'default'           => '',
@@ -181,7 +190,7 @@ return [
 		'title'       => __( 'COM PLUS', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'Field for submitting a value you would like to be returned in the feedback request.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',//12345687891235456789
 		'desc_tip'    => false,
 	],
@@ -189,7 +198,7 @@ return [
 		'title'       => __( 'PARAM PLUS', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'Field for submitting some parameters and their values you would like to be returned in the feedback request. The field PARAMPLUS is not included in the feedback parameters as such; instead, the parameters/values you submit in this field will be parsed and the resulting parameters added to the http request.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',//SessionID and Shopper ID
 		'desc_tip'    => false,
 	],
@@ -238,7 +247,7 @@ return [
 		'title'       => __( 'Payment Page Title', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'Title of the payment page. This name will be visible in the title bar of the payment page.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',
 		'desc_tip'    => false,
 	],
@@ -307,7 +316,7 @@ return [
 		'title'       => __( 'Logo', 'woocommerce' ),
 		'type'        => 'text',
 		'description' => __( 'Logo in the payment page. This logo url must be stored in a ssl enabled location or else it won\'t be shown.',
-			'woocommerce' ),
+		                     'woocommerce' ),
 		'default'     => '',
 		'desc_tip'    => false,
 	],
