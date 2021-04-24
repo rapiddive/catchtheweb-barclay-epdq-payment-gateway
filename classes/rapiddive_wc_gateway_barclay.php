@@ -268,8 +268,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	public function get_barclay_fields( $order_id ) {
 		$order = wc_get_order( $order_id );
 
-		// var_dump(get_class_methods($order));
-		// exit;
 		$barclay_args = [
 			'PSPID'         => $this->access_key,
 			'ORDERID'       => $order->id,
