@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	public const TEST_URL = 'https://mdepayments.epdq.co.uk/ncol/test/orderstandard.asp';
 	public const LIVE_URL = 'https://payments.epdq.co.uk/ncol/prod/orderstandard.asp';
-	const BARCLAY_PAYMENT_SEPARATOR = ';';
+	public const BARCLAY_PAYMENT_SEPARATOR = ';';
 
 	/**
 	 * Whether or not logging is enabled
@@ -27,6 +27,10 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @var WC_Logger
 	 */
 	public static $log = false;
+
+	/**
+	 * @var string
+	 */
 	protected $access_key;
 	/**
 	 * @var string
