@@ -1,9 +1,11 @@
 <?php
 
+declare( strict_types=1 );
 /**
  * Settings for Barclay Gateway.
  */
-declare( strict_types=1 );
+const SELECT_PAYMENT_METHODS = 'Select Payment Methods';
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -130,7 +132,7 @@ return [
 			'CreditCard' => __( 'CreditCard', 'woocommerce' ),
 		],
 		'custom_attributes' => [
-			'data-placeholder' => __( 'Select Payment Methods', 'woocommerce' ),
+			'data-placeholder' => __( SELECT_PAYMENT_METHODS, 'woocommerce' ),
 		],
 
 	],
@@ -153,7 +155,7 @@ return [
 			'JCB'              => __( 'JCB', 'woocommerce' ),
 		],
 		'custom_attributes' => [
-			'data-placeholder' => __( 'Select Payment Methods', 'woocommerce' ),
+			'data-placeholder' => __( SELECT_PAYMENT_METHODS, 'woocommerce' ),
 		],
 	],
 	'secure_3d'      => [
@@ -183,7 +185,7 @@ return [
 			'JCB'              => __( 'JCB', 'woocommerce' ),
 		],
 		'custom_attributes' => [
-			'data-placeholder' => __( 'Select Payment Methods', 'woocommerce' ),
+			'data-placeholder' => __( SELECT_PAYMENT_METHODS, 'woocommerce' ),
 		],
 	],
 	'com_plus'       => [
