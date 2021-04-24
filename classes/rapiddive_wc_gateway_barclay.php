@@ -1,4 +1,6 @@
 <?php
+
+declare( strict_types=1 );
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -8,8 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @property string showLogo
  */
 class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
-	const TEST_URL = 'https://mdepayments.epdq.co.uk/ncol/test/orderstandard.asp';
-	const LIVE_URL = 'https://payments.epdq.co.uk/ncol/prod/orderstandard.asp';
+	public const TEST_URL = 'https://mdepayments.epdq.co.uk/ncol/test/orderstandard.asp';
+	public const LIVE_URL = 'https://payments.epdq.co.uk/ncol/prod/orderstandard.asp';
+	public const BARCLAY_PAYMENT_SEPARATOR = ';';
 
 	/**
 	 * Whether or not logging is enabled
@@ -24,17 +27,28 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @var WC_Logger
 	 */
 	public static $log = false;
+
+	/**
+	 * @var string
+	 */
 	protected $access_key;
+	/**
+	 * @var string
+	 */
+	private $status;
 
 	/**
 	 * RapidDive_WC_Gateway_Barclay constructor.
 	 */
 	public function __construct() {
 		$this->id                 = 'barclay';
-		$this->method_title       = __( 'Barclay ePDQ', 'woocommerce' );
+		$this->has_fields         = false;
 		$this->order_button_text  = __( 'Proceed to Barclaycard ePDQ', 'woocommerce' );
-		$this->method_description = __( 'Barclay ePDQ redirects customers to Barclaycard to enter their payment information.',
-			'woocommerce' );
+		$this->method_title       = __( 'Barclay ePDQ', 'woocommerce' );
+		$this->method_description = __(
+			'Barclay ePDQ redirects customers to Barclaycard to enter their payment information.',
+			'woocommerce'
+		);
 		$this->supports           = [
 			'products',
 //            'refunds',
@@ -46,10 +60,14 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$this->init_settings();
 
 		$this->title       = $this->get_option( 'title' );
-		$this->title       = ( $this->title !== null && $this->title !== '' ) ? $this->title : __( 'Barclay ePDQ',
-			'woocommerce' );
+		$this->title       = ( $this->title !== null && $this->title !== '' ) ? $this->title : __(
+			'Barclay ePDQ',
+			'woocommerce'
+		);
 		$this->description = $this->get_option( 'description' );
 		$this->access_key  = $this->get_option( 'access_key' );
+		$this->debug       = 'yes' === $this->get_option( 'debug', 'no' );
+		self::$log_enabled = $this->debug;
 		$this->showLogo    = $this->get_option( 'show_logo' );
 
 		$this->status       = $this->get_option( 'status' );
@@ -64,14 +82,20 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$this->aavscheck = $this->get_option( 'aavcheck' );
 		$this->cvccheck  = $this->get_option( 'cvccheck' );
 
-		$this->payment_method = is_array( $this->get_option( 'payment_method' ) ) ? implode( ';',
-			$this->get_option( 'payment_method' ) ) : '';
-		$this->brand_cards    = is_array( $this->get_option( 'brand_cards' ) ) ? implode( ';',
-			$this->get_option( 'brand_cards' ) ) : '';
+		$this->payment_method = is_array( $this->get_option( 'payment_method' ) ) ? implode(
+			self::BARCLAY_PAYMENT_SEPARATOR,
+			$this->get_option( 'payment_method' )
+		) : '';
+		$this->brand_cards    = is_array( $this->get_option( 'brand_cards' ) ) ? implode(
+			self::BARCLAY_PAYMENT_SEPARATOR,
+			$this->get_option( 'brand_cards' )
+		) : '';
 		$this->secure_3d      = $this->get_option( 'secure_3d' );
 //        $this->method_list = $this->get_option('method_list');
-		$this->method_list = is_array( $this->get_option( 'method_list' ) ) ? implode( ';',
-			$this->get_option( 'method_list' ) ) : '';
+		$this->method_list = is_array( $this->get_option( 'method_list' ) ) ? implode(
+			self::BARCLAY_PAYMENT_SEPARATOR,
+			$this->get_option( 'method_list' )
+		) : '';
 
 		$this->com_plus   = $this->get_option( 'com_plus' );
 		$this->param_plus = $this->get_option( 'param_plus' );
@@ -104,7 +128,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * Initialise Gateway Settings Form Fields.
 	 */
 	public function init_form_fields() {
-		$this->form_fields = include( 'includes/settings-barclay.php' );
+		$this->form_fields = include __DIR__ . '/includes/settings-barclay.php';
 	}
 
 	/**
@@ -130,17 +154,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 *
-	 */
-	public function admin_options() {
-		?>
-        <h2> <?php _e( 'Barclay Payment Gateway', 'woocommerce' ); ?> </h2>
-        <table class="form-table">
-			<?php $this->generate_settings_html(); ?>
-        </table> <?php
-	}
-
-	/**
 	 * @param int $order_id
 	 *
 	 * @return array
@@ -158,8 +171,10 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @param $order
 	 */
 	public function receipt_page( $order ) {
-		echo '<p>' . __( 'Thank you for your order, please click the button below to pay with Barclay ePDQ.',
-				'woocommerce' ) . '</p>';
+		echo '<p>' . __(
+				'Thank you for your order, please click the button below to pay with Barclay ePDQ.',
+				'woocommerce'
+			) . '</p>';
 		echo $this->generate_barclay_form( $order );
 	}
 
@@ -176,6 +191,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$shasign_arg = [];
 
 		ksort( $barclay_args );
+
 		foreach ( $barclay_args as $key => $value ) {
 			if ( $value == '' ) {
 				continue;
@@ -183,13 +199,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$shasign_arg[] = $key . '=' . $value;
 		}
 
-		if ( $this->sha_method == 0 ) {
-			$shasign = sha1( implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
-		} elseif ( $this->sha_method == 1 ) {
-			$shasign = hash( 'sha256', implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
-		} elseif ( $this->sha_method == 2 ) {
-			$shasign = hash( 'sha512', implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
-		}
+		$shasign = hash( $this->getShaMethod(), implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
 
 		$barclay_html_args = [];
 		foreach ( $barclay_args as $key => $value ) {
@@ -206,10 +216,14 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 				'<form action="' . esc_url( $url ) . '" method="post" id="epdq_payment_form">' .
 				implode( '', $barclay_html_args ) .
 				'<input type="hidden" name="SHASIGN" value="' . $shasign . '"/>' .
-				'<input type="submit" class="button alt" id="submit_epdq_payment_form" value="' . __( 'Pay via Barclay ePDQ',
-					'woocommerce' ) . '" />' .
-				'<a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __( 'Cancel order &amp; restore cart',
-					'woocommerce' ) . '</a>' .
+				'<input type="submit" class="button alt" id="submit_epdq_payment_form" value="' . __(
+					'Pay via Barclay ePDQ',
+					'woocommerce'
+				) . '" />' .
+				'<a class="button cancel" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . __(
+					'Cancel order &amp; restore cart',
+					'woocommerce'
+				) . '</a>' .
 				'</form>';
 		} else {
 			return '<p class="error">' . $this->error_notice . '</p>';
@@ -222,7 +236,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @return array
 	 */
 	public function get_barclay_fields( $order_id ) {
-
 		$order = wc_get_order( $order_id );
 
 		// var_dump(get_class_methods($order));
@@ -286,6 +299,24 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function getShaMethod() {
+		switch ( $this->sha_method ) {
+			case 1:
+				$shaMethod = 'sha256';
+				break;
+			case 2:
+				$shaMethod = 'sha512';
+				break;
+			default:
+				$shaMethod = 'sha1';
+		}
+
+		return $shaMethod;
+	}
+
+	/**
 	 *
 	 */
 	public function payment_fields() {
@@ -300,7 +331,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	/**
 	 *
 	 */
-	function check_barclay_response() {
+	public function check_barclay_response() {
 		ob_clean();
 		header( 'HTTP/1.1 200 OK' );
 
@@ -325,11 +356,11 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * @param $datacheck
+	 * @param array $datacheck
 	 *
 	 * @return bool
 	 */
-	protected function checkShaOut( $datacheck ) {
+	protected function checkShaOut( array $datacheck ) {
 		$shaout = $this->sha_out;
 
 		$origsig = $datacheck['SHASIGN'];
@@ -345,7 +376,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$shasig .= trim( strtoupper( $key ) ) . '=' . utf8_encode( trim( $value ) ) . $shaout;
 		}
 
-		$shasig = strtoupper( hash( 'sha1', $shasig ) );
+		$shasig = strtoupper( hash( $this->getShaMethod(), $shasig ) );
 
 		if ( $shasig == $origsig ) {
 			return true;
@@ -357,7 +388,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	/**
 	 * @param $args
 	 */
-	function transaction_successfull( $args ) {
+	public function transaction_successfull( $args ) {
 		global $woocommerce;
 
 		extract( $args );
@@ -373,11 +404,12 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$died    = '';
 		$died    .= $dienote;
 		$died    .= '<p>Your order is cancelled and your cart is emptied.';
-		$died    .= '<br>Go to your <a href="' . get_permalink( get_option( 'woocommerce_myaccount_page_id' ) ) . '">account</a> to process your order again or ';
+		$died    .= '<br>Go to your <a href="' . get_permalink(
+				get_option( 'woocommerce_myaccount_page_id' )
+			) . '">account</a> to process your order again or ';
 		$died    .= 'go to <a href="' . home_url() . '">homepage</a></p>';
 
 		if ( in_array( $STATUS, $accepted ) ) {
-
 			if ( ! empty( $args['ORDERID'] ) ) {
 				$note = 'Order ID: ' . $ORDERID . '.<br>';
 			} //	order id
@@ -478,7 +510,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 				$note .= $note;
 				$order->update_status( 'on-hold', $note );
 			}
-
 		} elseif ( $STATUS == 2 || $STATUS == 93 ) {
 			$dienote .= '<br>Order is failed.';
 			$order->update_status( 'failed', $dienote );
@@ -506,7 +537,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 *
 	 * @return mixed|string|void
 	 */
-	function get_barclay_status_code( $code ) {
+	public function get_barclay_status_code( $code ) {
 		if ( $code == '' ) {
 			return;
 		}
@@ -564,7 +595,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 *
 	 * @return mixed|string|void
 	 */
-	function get_barclay_ncerror( $code ) {
+	public function get_barclay_ncerror( $code ) {
 		if ( $code == '' ) {
 			return;
 		}
@@ -1097,11 +1128,13 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * @param WC_Order $order
+	 * Get a link to the transaction on the 3rd party gateway site (if applicable).
 	 *
-	 * @return string
+	 * @param WC_Order $order the order object.
+	 *
+	 * @return string transaction URL, or empty string.
 	 */
-	public function get_transaction_url( $order ) {
+	public function get_transaction_url( $order ): string {
 		if ( 'live' == $this->status ) {
 			$this->view_transaction_url = self::LIVE_URL;
 		} else {
