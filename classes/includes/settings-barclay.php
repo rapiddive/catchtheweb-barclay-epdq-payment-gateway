@@ -1,12 +1,9 @@
 <?php
 
 declare( strict_types=1 );
-/**
- * Settings for Barclay Gateway.
- */
-const SELECT_PAYMENT_METHODS = 'Select Payment Methods';
-
 defined( 'ABSPATH' ) || exit;
+const AMERICAN_EXPRESS       = 'American Express';
+const SELECT_PAYMENT_METHODS = 'Select Payment Methods';
 
 /**
  * Settings for Barclay Payment Gateway
@@ -147,12 +144,12 @@ return [
 		'default'           => '',
 		'desc_tip'          => true,
 		'options'           => [
-			''                 => 'all',
-			'VISA'             => __( 'VISA', 'woocommerce' ),
-			'Maestro'          => __( 'Maestro', 'woocommerce' ),
-			'MasterCard'       => __( 'MasterCard', 'woocommerce' ),
-			'American Express' => __( 'American Express', 'woocommerce' ),
-			'JCB'              => __( 'JCB', 'woocommerce' ),
+			''               => 'all',
+			'VISA'           => __( 'VISA', 'woocommerce' ),
+			'Maestro'        => __( 'Maestro', 'woocommerce' ),
+			'MasterCard'     => __( 'MasterCard', 'woocommerce' ),
+			AMERICAN_EXPRESS => __( AMERICAN_EXPRESS, 'woocommerce' ),
+			'JCB'            => __( 'JCB', 'woocommerce' ),
 		],
 		'custom_attributes' => [
 			'data-placeholder' => __( SELECT_PAYMENT_METHODS, 'woocommerce' ),
@@ -177,12 +174,12 @@ return [
 		'default'           => '',
 		'desc_tip'          => true,
 		'options'           => [
-			''                 => 'all',
-			'VISA'             => __( 'VISA', 'woocommerce' ),
-			'Maestro'          => __( 'Maestro', 'woocommerce' ),
-			'MasterCard'       => __( 'MasterCard', 'woocommerce' ),
-			'American Express' => __( 'American Express', 'woocommerce' ),
-			'JCB'              => __( 'JCB', 'woocommerce' ),
+			''               => 'all',
+			'VISA'           => __( 'VISA', 'woocommerce' ),
+			'Maestro'        => __( 'Maestro', 'woocommerce' ),
+			'MasterCard'     => __( 'MasterCard', 'woocommerce' ),
+			AMERICAN_EXPRESS => __( AMERICAN_EXPRESS, 'woocommerce' ),
+			'JCB'            => __( 'JCB', 'woocommerce' ),
 		],
 		'custom_attributes' => [
 			'data-placeholder' => __( SELECT_PAYMENT_METHODS, 'woocommerce' ),
