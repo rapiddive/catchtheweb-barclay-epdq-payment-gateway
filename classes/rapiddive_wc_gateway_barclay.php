@@ -135,7 +135,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$this->get_option( 'brand_cards' )
 		) : '';
 		$this->secure_3d      = $this->get_option( 'secure_3d' );
-//        $this->method_list = $this->get_option('method_list');
 		$this->method_list = is_array( $this->get_option( 'method_list' ) ) ? implode(
 			self::BARCLAY_PAYMENT_SEPARATOR,
 			$this->get_option( 'method_list' )
