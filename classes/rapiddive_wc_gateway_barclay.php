@@ -191,6 +191,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$shasign_arg = [];
 
 		ksort( $barclay_args );
+
 		foreach ( $barclay_args as $key => $value ) {
 			if ( $value == '' ) {
 				continue;
@@ -198,13 +199,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$shasign_arg[] = $key . '=' . $value;
 		}
 
-		if ( $this->sha_method == 0 ) {
-			$shasign = sha1( implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
-		} elseif ( $this->sha_method == 1 ) {
-			$shasign = hash( 'sha256', implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
-		} elseif ( $this->sha_method == 2 ) {
-			$shasign = hash( 'sha512', implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
-		}
+		$shasign = hash( $this->getShaMethod(), implode( $this->sha_in, $shasign_arg ) . $this->sha_in );
 
 		$barclay_html_args = [];
 		foreach ( $barclay_args as $key => $value ) {
@@ -304,6 +299,24 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function getShaMethod() {
+		switch ( $this->sha_method ) {
+			case 1:
+				$shaMethod = 'sha256';
+				break;
+			case 2:
+				$shaMethod = 'sha512';
+				break;
+			default:
+				$shaMethod = 'sha1';
+		}
+
+		return $shaMethod;
+	}
+
+	/**
 	 *
 	 */
 	public function payment_fields() {
@@ -343,11 +356,11 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * @param $datacheck
+	 * @param array $datacheck
 	 *
 	 * @return bool
 	 */
-	protected function checkShaOut( $datacheck ) {
+	protected function checkShaOut( array $datacheck ) {
 		$shaout = $this->sha_out;
 
 		$origsig = $datacheck['SHASIGN'];
@@ -363,7 +376,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$shasig .= trim( strtoupper( $key ) ) . '=' . utf8_encode( trim( $value ) ) . $shaout;
 		}
 
-		$shasig = strtoupper( hash( 'sha1', $shasig ) );
+		$shasig = strtoupper( hash( $this->getShaMethod(), $shasig ) );
 
 		if ( $shasig == $origsig ) {
 			return true;
