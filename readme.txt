@@ -1,7 +1,7 @@
 === **RapidDive** BARCLAY ePDQ Payment Gateway ===
 Contributors: vinayshah5
 Donate link: https://www.paypal.me/vinayshah5
-Tags: woo commerce, payment gateway, barclay, ePDQ
+Tags: woocommerce, payment gateway, barclay, ePDQ, ecommerce
 Requires at least: 4.9.6
 Tested up to: 5.7.1
 Stable tag: 5.7.1

@@ -10,14 +10,14 @@ class RapidDive_Epdq_ErrorCodes {
 	public const EXPIRY_DATE_ERROR = 'Expiry date error.';
 	public const A_TECHNICAL_PROBLEM_HAS_OCCURRED_PLEASE_CONTACT_THE_HELPDESK = 'A technical problem has occurred. Please contact the helpdesk.';
 	public const COMMUNICATION_FAILURE = 'Communication failure.';
-	const YOU_HAVE_REACHED_THE_PERMITTED_USAGE_LIMIT = 'You have reached the permitted usage limit.';
-	const A_TECHNICAL_PROBLEM_HAS_OCCURRED_PLEASE_TRY_AGAIN = 'A technical problem has occurred. Please try again.';
-	const SUSPICION_OF_FRAUD = 'Suspicion of fraud.';
-	const A_TECHNICAL_HAS_PROBLEM_OCCURRED_PLEASE_CONTACT_THE_HELPDESK = 'A technical has problem occurred. Please contact the helpdesk.';
-	const WE_HAVE_RECEIVED_AN_UNKNOWN_STATUS_FOR_THE_TRANSACTION_WE_SHALL_CONTACT_YOUR_ACQUIRER_AND_UPDATE_THE_TRANSACTION_STATUS_WITHIN_ONE_WORKING_DAY_PLEASE_CHECK_THE_STATUS_LATER = 'We have received an unknown status for the transaction. We shall contact your acquirer and update the transaction status within one working day. Please check the status later.';
-	const WE_RECEIVED_AN_UNKNOWN_STATUS_FOR_THE_TRANSACTION_WE_WILL_CONTACT_YOUR_ACQUIRER_AND_UPDATE_THE_STATUS_OF_THE_TRANSACTION_PLEASE_CHECK_THE_STATUS_LATER = 'We received an unknown status for the transaction. We will contact your acquirer and update the status of the transaction. Please check the status later.';
-	const PAYMENT_REFUSED_BY_THE_FINANCIAL_INSTITUTION = 'Payment refused by the financial institution.';
-	const THERE_HAS_BEEN_A_CONNECTION_ERROR_TO_THE_RECEIVING_BANK_PLEASE_TRY_LATER_OR_CHOOSE_ANOTHER_PAYMENT_METHOD = 'There has been a connection error to the receiving bank. Please try later or choose another payment method.';
+	public const YOU_HAVE_REACHED_THE_PERMITTED_USAGE_LIMIT = 'You have reached the permitted usage limit.';
+	public const A_TECHNICAL_PROBLEM_HAS_OCCURRED_PLEASE_TRY_AGAIN = 'A technical problem has occurred. Please try again.';
+	public const SUSPICION_OF_FRAUD = 'Suspicion of fraud.';
+	public const A_TECHNICAL_HAS_PROBLEM_OCCURRED_PLEASE_CONTACT_THE_HELPDESK = 'A technical has problem occurred. Please contact the helpdesk.';
+	public const WE_HAVE_RECEIVED_AN_UNKNOWN_STATUS_FOR_THE_TRANSACTION_WE_SHALL_CONTACT_YOUR_ACQUIRER_AND_UPDATE_THE_TRANSACTION_STATUS_WITHIN_ONE_WORKING_DAY_PLEASE_CHECK_THE_STATUS_LATER = 'We have received an unknown status for the transaction. We shall contact your acquirer and update the transaction status within one working day. Please check the status later.';
+	public const WE_RECEIVED_AN_UNKNOWN_STATUS_FOR_THE_TRANSACTION_WE_WILL_CONTACT_YOUR_ACQUIRER_AND_UPDATE_THE_STATUS_OF_THE_TRANSACTION_PLEASE_CHECK_THE_STATUS_LATER = 'We received an unknown status for the transaction. We will contact your acquirer and update the status of the transaction. Please check the status later.';
+	public const PAYMENT_REFUSED_BY_THE_FINANCIAL_INSTITUTION = 'Payment refused by the financial institution.';
+	public const THERE_HAS_BEEN_A_CONNECTION_ERROR_TO_THE_RECEIVING_BANK_PLEASE_TRY_LATER_OR_CHOOSE_ANOTHER_PAYMENT_METHOD = 'There has been a connection error to the receiving bank. Please try later or choose another payment method.';
 
 	/**
 	 * @var string[]

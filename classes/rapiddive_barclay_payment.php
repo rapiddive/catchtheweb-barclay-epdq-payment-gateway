@@ -62,6 +62,7 @@ class RapidDive_Barclay_Payment
             return;
         }
 		require 'includes/error-code-barclay.php';
+		require 'includes/success-code-barclay.php';
         require 'rapiddive_wc_gateway_barclay.php';
     }
 
