@@ -61,7 +61,7 @@ class RapidDive_Barclay_Payment
         if (!class_exists('WC_Payment_Gateway')) {
             return;
         }
-
+		require 'includes/error-code-barclay.php';
         require 'rapiddive_wc_gateway_barclay.php';
     }
 
