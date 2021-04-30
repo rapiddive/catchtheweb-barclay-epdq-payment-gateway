@@ -68,6 +68,9 @@ We would also recommend that you set up the "test" Barclays back office and enab
 = 2.3.4 =
 1. Generic Fix
 
+= 2.3.5 =
+1. Easy access to git issues URL to report issues.
+
 == ePDQ Documentation ==
 [ePDQ Back Office Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_Back-Office_EN.pdf)
 [ePDQ User Manager User Guide](https://mdepayments.epdq.co.uk/Ncol/ePDQ_USR_EN.pdf)
