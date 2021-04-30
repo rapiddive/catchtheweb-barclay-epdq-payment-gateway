@@ -34,6 +34,122 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @var string
 	 */
 	private $status;
+	/**
+	 * @var string
+	 */
+	private $sha_in;
+	/**
+	 * @var string
+	 */
+	private $sha_out;
+	/**
+	 * @var int|string
+	 */
+	private $sha_method;
+	/**
+	 * @var bool
+	 */
+	private $debug;
+	/**
+	 * @var string
+	 */
+	private $error_notice;
+	/**
+	 * @var int
+	 */
+	private $cat_url;
+	/**
+	 * @var string
+	 */
+	private $aavscheck;
+	/**
+	 * @var string
+	 */
+	private $cvccheck;
+	/**
+	 * @var string
+	 */
+	private $payment_method;
+	/**
+	 * @var string
+	 */
+	private $brand_cards;
+	/**
+	 * @var string
+	 */
+	private $secure_3d;
+	/**
+	 * @var string
+	 */
+	private $method_list;
+	/**
+	 * @var string
+	 */
+	private $com_plus;
+	/**
+	 * @var string
+	 */
+	private $param_plus;
+	/**
+	 * @var string
+	 */
+	private $param_var;
+	/**
+	 * @var string
+	 */
+	private $api_user_id;
+	/**
+	 * @var string
+	 */
+	private $operation;
+	/**
+	 * @var string
+	 */
+	private $api_user_pswd;
+	/**
+	 * @var string
+	 */
+	private $notify_url;
+	/**
+	 * @var string
+	 */
+	private $pp_format;
+	/**
+	 * @var string
+	 */
+	private $pp_title;
+	/**
+	 * @var string
+	 */
+	private $BGCOLOR;
+	/**
+	 * @var string
+	 */
+	private $TXTCOLOR;
+	/**
+	 * @var string
+	 */
+	private $TBLBGCOLOR;
+	/**
+	 * @var string
+	 */
+	private $TBLTXTCOLOR;
+	/**
+	 * @var string
+	 */
+	private $BUTTONBGCOLOR;
+	/**
+	 * @var string
+	 */
+	private $BUTTONTXTCOLOR;
+	/**
+	 * @var string
+	 */
+	private $FONTTYPE;
+	/**
+	 * @var string
+	 */
+	private $LOGO;
 
 	/**
 	 * RapidDive_WC_Gateway_Barclay constructor.
@@ -89,7 +205,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$this->get_option( 'brand_cards' )
 		) : '';
 		$this->secure_3d      = $this->get_option( 'secure_3d' );
-		$this->method_list    = is_array( $this->get_option( 'method_list' ) ) ? implode(
+		$this->method_list    = is_array( $this->get_option( 'method_list' ) ) ? join(
 			self::BARCLAY_PAYMENT_SEPARATOR,
 			$this->get_option( 'method_list' )
 		) : '';
@@ -108,7 +224,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 
 		// templating
 		$this->pp_format      = $this->get_option( 'pp_format ' );
-		$this->TITLE          = $this->get_option( 'TITLE' );
+		$this->pp_title       = $this->get_option( 'TITLE' );
 		$this->BGCOLOR        = $this->get_option( 'BGCOLOR' );
 		$this->TXTCOLOR       = $this->get_option( 'TXTCOLOR' );
 		$this->TBLBGCOLOR     = $this->get_option( 'TBLBGCOLOR' );
@@ -142,7 +258,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 *
 	 * @return array
 	 */
-	public function process_payment( $order_id ) {
+	public function process_payment( $order_id ): array {
 		$order = wc_get_order( $order_id );
 
 		return [
@@ -259,14 +375,14 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			//POST payment url
 			'PARAMVAR'     => $this->param_var,
 
-			//REcommended for direct payments
+			//Recommended for direct payments
 			'OPERATION'    => $this->operation,
 			'USERID'       => $this->api_user_id,
 			'PASWD'        => $this->api_user_pswd,
 		];
 
 		if ( $this->pp_format == 'yes' ) {
-			$barclay_args['TITLE']          = $this->TITLE;
+			$barclay_args['TITLE']          = $this->pp_title;
 			$barclay_args['BGCOLOR']        = $this->BGCOLOR;
 			$barclay_args['TXTCOLOR']       = $this->TXTCOLOR;
 			$barclay_args['TBLBGCOLOR']     = $this->TBLBGCOLOR;
@@ -305,9 +421,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		if ( $this->showLogo === 'yes' ) {
 			echo '<img src="' . plugin_dir_url( __FILE__ ) . '../assets/epdq.gif"/>';
 		}
-		if ( $description = $this->get_description() ) {
-			echo wpautop( wptexturize( $description ) );
-		}
+		parent::payment_fields();
 	}
 
 	/**
