@@ -59,9 +59,9 @@ class RapidDive_Barclay_Payment {
 	public function getPluginActionLinks( $action_links, $plugin_file ) {
 		static $plugin;
 		if ( ! isset( $plugin ) ) {
-			$plugin = plugin_basename( __FILE__ );
+			$plugin = 'catchtheweb-barclay-epdq-payment-gateway';
 		}
-		if ( $plugin == 'catchtheweb-barclay-epdq-payment-gateway/classes/rapiddive_barclay_payment.php' ) {
+		if ( strpos( $plugin_file, $plugin ) !== false ) {
 			$otherLinks   = [
 				'Issues' => '<a href="https://github.com/rapiddive/catchtheweb-barclay-epdq-payment-gateway/issues" target="_blank">Report Issues</a>',
 			];
