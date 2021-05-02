@@ -70,6 +70,7 @@ We would also recommend that you set up the "test" Barclays back office and enab
 
 = 2.3.5 =
 1. Easy access to git issues URL to report issues.
+2. Filter ePDQ setting for easy extensibility.
 
 == ePDQ Documentation ==
 [ePDQ Back Office Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_Back-Office_EN.pdf)
