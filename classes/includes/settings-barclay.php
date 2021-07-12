@@ -138,7 +138,7 @@ return apply_filters(
 
 		'brand_cards'    => [
 			'title'             => __( 'Brand Cards', 'woocommerce' ),
-			'type'              => 'multiselect',
+			'type'              => 'select',
 			'class'             => 'wc-enhanced-select',
 			'css'               => 'width: 400px;',
 			'description'       => __( 'Brand of Cards Selected by the Merchant eg. VISA, MAESTRO. If blank all cards accepted',
