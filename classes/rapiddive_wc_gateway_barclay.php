@@ -254,19 +254,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * @param $message
-	 * @param string $level
-	 */
-	public static function log( $message, $level = 'info' ) {
-		if ( self::$log_enabled ) {
-			if ( self::$log === null ) {
-				self::$log = wc_get_logger();
-			}
-			self::$log->log( $level, $message, [ 'source' => 'barclay' ] );
-		}
-	}
-
-	/**
 	 * @param int $order_id
 	 *
 	 * @return array
@@ -371,8 +358,8 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			'EXCEPTIONURL' => $this->notify_url,
 			// 'CANCELURL' => $this->notify_url,
 			'CANCELURL'    => esc_url_raw( $order->get_cancel_order_url_raw() ),
-			'BACKURL'      => '',
-			'HOMEURL'      => '',
+			'BACKURL'      => esc_url_raw(home_url()),
+			'HOMEURL'      => esc_url_raw(home_url()),
 			'CATALOGURL'   => get_permalink( $this->cat_url ),
 
 			//payment method
@@ -507,6 +494,12 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$acceptedOrderStatus = [ 4, 5, 9, 41, 51, 91 ];
 
 		$orderNote = $this->checkOrderArgs( $args );
+		$died      = '<p>Transection result is uncertain.<p>';
+		$died      .= '<p>Your order is cancelled and your cart is emptied.';
+		$died      .= '</br>Go to your <a href="' . get_permalink(
+				get_option( 'woocommerce_myaccount_page_id' )
+			) . '">account</a> to process your order again or ';
+		$died      .= 'go to <a href="' . home_url() . '">homepage</a></p>';
 		$orderNote .= $statusMsg . $errorMSG;
 		if ( in_array( $STATUS, $acceptedOrderStatus ) ) {
 			switch ( $STATUS ) {
@@ -533,16 +526,15 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 						$cancelStatus = 'cancelled';
 					}
 					$order->update_status( $cancelStatus, $orderNote );
-
 					break;
 				default:
-					var_dump( 'failed Transaction' );
-					exit;
+					$order->update_status( 'failed', $died );
 					break;
 			}
 		} else {
-
+			$order->update_status( 'failed', $died );
 		}
+		self::log( $died );
 
 		$order->add_order_note( $orderNote );
 		$woocommerce->cart->empty_cart();
@@ -611,6 +603,19 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		}
 
 		return $orderNote;
+	}
+
+	/**
+	 * @param $message
+	 * @param string $level
+	 */
+	public static function log( $message, $level = 'info' ) {
+		if ( self::$log_enabled ) {
+			if ( self::$log === null ) {
+				self::$log = wc_get_logger();
+			}
+			self::$log->log( $level, $message, [ 'source' => 'barclay' ] );
+		}
 	}
 
 	/**
