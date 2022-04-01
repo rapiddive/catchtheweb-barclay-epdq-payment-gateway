@@ -502,50 +502,52 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		extract( $args );
 		$order     = new WC_Order( $ORDERID );
 		$statusMsg = sprintf( '<b>Status Code:</b> %s :: %s </br>', $STATUS, $this->get_barclay_status_code( $STATUS ) );
-		$errorMSG = sprintf('<b>Error Code:</b> %s :: %s </br>', $NCERROR, $this->get_barclay_ncerror( $NCERROR ));
+		$errorMSG  = sprintf( '<b>Error Code:</b> %s :: %s </br>', $NCERROR, $this->get_barclay_ncerror( $NCERROR ) );
 
 		$acceptedOrderStatus = [ 4, 5, 9, 41, 51, 91 ];
-		var_dump( $args );
+
 		$orderNote = $this->checkOrderArgs( $args );
 		$orderNote .= $statusMsg . $errorMSG;
+		if ( in_array( $STATUS, $acceptedOrderStatus ) ) {
+			switch ( $STATUS ) {
+				case 4:
+				case 5:
+				case 9:
+					$orderNote .= __( 'Barclay ePDQ transaction is confirmed.</br>' );
+					$order->payment_complete();
+					break;
+				case 41:
+				case 51:
+				case 91:
+					$orderNote .= __( 'Barclay ePDQ transaction is awaiting for confirmation.</br>' );
+					$order->update_status( 'on-hold', $orderNote );
+					break;
+				case 1:
+				case 2:
+				case 93:
+				case 52:
+				case 92:
+					$orderNote    .= __( 'Order is failed. </br>' );
+					$cancelStatus = 'failed';
+					if ( $STATUS === 1 ) {
+						$cancelStatus = 'cancelled';
+					}
+					$order->update_status( $cancelStatus, $orderNote );
 
-		switch ( $STATUS ) {
-			case 4:
-			case 5:
-			case 9:
-				$orderNote .= __( 'Barclay ePDQ transaction is confirmed.</br>' );
-				$order->payment_complete();
-				break;
-			case 41:
-			case 51:
-			case 91:
-				$orderNote .= __( 'Barclay ePDQ transaction is awaiting for confirmation.</br>' );
-				$order->update_status( 'on-hold', $orderNote );
-				break;
-			case 1:
-			case 2:
-			case 93:
-			case 52:
-			case 92:
-				$orderNote    .= __( 'Order is failed. </br>' ) . $statusMsg;
-				$cancelStatus = 'failed';
-				if ( $STATUS === 1 ) {
-					$cancelStatus = 'cancelled';
-				}
-				$order->update_status( $cancelStatus, $orderNote );
-				$woocommerce->cart->empty_cart();
-				break;
-			default:
-				var_dump( 'failed Transaction' );
-				exit;
-				break;
+					break;
+				default:
+					var_dump( 'failed Transaction' );
+					exit;
+					break;
+			}
+		} else {
+
 		}
-		var_dump( $orderNote );
-		exit();
-		$order->add_order_note( $orderNote );
-		wp_redirect( $this->get_return_url( $order ) );
 
-		return;
+		$order->add_order_note( $orderNote );
+		$woocommerce->cart->empty_cart();
+
+		return wp_redirect( $this->get_return_url( $order ) );
 	}
 
 	/**
@@ -638,16 +640,5 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$value = is_null( $value ) ? '' : $value;
 
 		return wp_kses_post( trim( stripslashes( $value ) ) );
-	}
-
-	/**
-	 * @param $order
-	 * @param $orderStatus
-	 * @param $orderNote
-	 *
-	 * @return void
-	 */
-	private function updateOrderStatus( &$order, $orderStatus, $orderNote ) {
-		$order->update_status( $orderStatus, $orderNote );
 	}
 }
