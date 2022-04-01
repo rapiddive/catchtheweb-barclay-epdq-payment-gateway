@@ -24,7 +24,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 *
 	 * @var WC_Logger
 	 */
-	public static $log = false;
+	public static $log = null;
 	/**
 	 * @var string
 	 */
