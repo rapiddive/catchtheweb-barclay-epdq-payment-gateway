@@ -259,11 +259,13 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @return array
 	 */
 	public function process_payment( $order_id ): array {
-		$order = wc_get_order( $order_id );
+		global $woocommerce;
+		$order = new WC_Order( $order_id );
+
 
 		return [
 			'result'   => 'success',
-			'redirect' => $order->get_checkout_payment_url( true ),
+			'redirect' => $order->get_checkout_payment_url( true )
 		];
 	}
 
@@ -358,8 +360,8 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			'EXCEPTIONURL' => $this->notify_url,
 			// 'CANCELURL' => $this->notify_url,
 			'CANCELURL'    => esc_url_raw( $order->get_cancel_order_url_raw() ),
-			'BACKURL'      => esc_url_raw(home_url()),
-			'HOMEURL'      => esc_url_raw(home_url()),
+			'BACKURL'      => esc_url_raw( home_url() ),
+			'HOMEURL'      => esc_url_raw( home_url() ),
 			'CATALOGURL'   => get_permalink( $this->cat_url ),
 
 			//payment method
@@ -442,6 +444,10 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			$datacheck1[ strtoupper( $key ) ] = strtoupper( $value );
 		}
 
+		if ( empty( $dataCheck['SHASIGN'] ) ) {
+			wp_die( 'Transaction is unsuccessfull!' );
+		}
+
 		$verify = $this->checkShaOut( $datacheck );
 
 		if ( $verify ) {
@@ -484,8 +490,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @param $args
 	 */
 	public function transaction_successfull( $args ) {
-		global $woocommerce;
-
 		extract( $args );
 		$order     = new WC_Order( $ORDERID );
 		$statusMsg = sprintf( '<b>Status Code:</b> %s :: %s </br>', $STATUS, $this->get_barclay_status_code( $STATUS ) );
@@ -537,7 +541,9 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		self::log( $died );
 
 		$order->add_order_note( $orderNote );
-		$woocommerce->cart->empty_cart();
+		if ( isset( WC()->cart ) ) {
+			WC()->cart->empty_cart();
+		}
 
 		return wp_redirect( $this->get_return_url( $order ) );
 	}
