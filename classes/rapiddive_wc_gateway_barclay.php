@@ -480,7 +480,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		return $__result;
 	}
 
-
 	/**
 	 * @param $args
 	 */
@@ -506,90 +505,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		$died    .= 'go to <a href="' . home_url() . '">homepage</a></p>';
 
 		if ( in_array( $STATUS, $accepted ) ) {
-			if ( ! empty( $args['ORDERID'] ) ) {
-				$note = 'Order ID: ' . $ORDERID . '.<br>';
-			} //	order id
-			if ( ! empty( $args['AMOUNT'] ) ) {
-				$note .= 'Amount: ' . $AMOUNT . '.<br>';
-			} //	amount
-			if ( ! empty( $args['CURRENCY'] ) ) {
-				$note .= 'Order currency: ' . $CURRENCY . '.<br>';
-			} //	order currency
-			if ( ! empty( $args['PM'] ) ) {
-				$note .= 'Payment Method: ' . $PM . '.<br>';
-			} //	payment method
-			if ( ! empty( $args['ACCEPTANCE'] ) ) {
-				$note .= 'Acceptance code returned by acquirer: ' . $ACCEPTANCE . '.<br>';
-			}    //	acceptance
-			if ( ! empty( $args['STATUS'] ) ) {
-				$note .= 'Transaction status : ' . $STATUS . '.<br>';
-			} //	status code
-			if ( ! empty( $args['CARDNO'] ) ) {
-				$note .= 'Masked card number : ' . $CARDNO . '.<br>';
-			} //	catd no
-			if ( ! empty( $args['PAYID'] ) ) {
-				$note .= 'Payment reference in EPDQ system: ' . $PAYID . '.<br>';
-			} //	pay id
-			if ( ! empty( $args['NCERROR'] ) ) {
-				$note .= 'Error Code: ' . $NCERROR . '.<br>';
-			} //	ncerror
-			if ( ! empty( $args['BRAND'] ) ) {
-				$note .= 'Card brand (EPDQ system derives this from the card number) : ' . $BRAND . '.<br>';
-			} //	brand
-			if ( ! empty( $args['ED'] ) ) {
-				$note .= 'Payer\'s card expiry date : ' . $ED . '.<br>';
-			} //	expiry date
-			if ( ! empty( $args['TRXDATE'] ) ) {
-				$note .= 'Transaction Date: ' . $TRXDATE . '.<br>';
-			} //	date
-			if ( ! empty( $args['CN'] ) ) {
-				$note .= 'Cardholder/customer name: ' . $CN . '.<br>';
-			} //	payer's name
-			if ( ! empty( $args['IP'] ) ) {
-				$note .= 'Customer\'s IP: ' . $IP . '.<br>';
-			} //	payer's ip
-
-
-			if ( ! empty( $args['AAVADDRESS'] ) ) {
-				$note .= 'AAV result for the address: ' . $AAVADDRESS . ' . <br>';
-			} //	aav address
-			if ( ! empty( $args['AAVCHECK'] ) ) {
-				$note .= 'Result of the automatic address verification: ' . $AAVCHECK . ' . <br>';
-			} //	aav check
-			if ( ! empty( $args['AAVZIP'] ) ) {
-				$note .= 'AAV result for the zip code: ' . $AAVZIP . ' . <br>';
-			} // aav zip
-			if ( ! empty( $args['BIN'] ) ) {
-				$note .= 'First 6 digits of credit card number: ' . $BIN . ' . <br>';
-			} // bin
-			if ( ! empty( $args['CCCTY'] ) ) {
-				$note .= 'Country where the card was issued: ' . $CCCTY . ' . <br>';
-			}
-			if ( ! empty( $args['COMPLUS'] ) ) {
-				$note .= 'Custom value passed: ' . $COMPLUS . ' . <br>';
-			}
-
-			if ( ! empty( $args['CVCCHECK'] ) ) {
-				$note .= 'Result of the card verification code check: ' . $CVCCHECK . ' . <br>';
-			}
-			if ( ! empty( $args['ECI'] ) ) {
-				$note .= 'Electronic Commerce Indicator: ' . $ECI . ' . <br>';
-			}
-			if ( ! empty( $args['FXAMOUNT'] ) ) {
-				$note .= 'FXAMOUNT: ' . $FXAMOUNT . ' . <br>';
-			}
-			if ( ! empty( $args['FXCURRENCY'] ) ) {
-				$note .= 'FXCURRENCY: ' . $FXCURRENCY . ' . <br>';
-			}
-			if ( ! empty( $args['IPCTY'] ) ) {
-				$note .= 'Originating country of the IP address: ' . $IPCTY . ' . <br>';
-			}
-			if ( ! empty( $args['SUBBRAND'] ) ) {
-				$note .= 'SUBBRAND: ' . $SUBBRAND . ' . <br>';
-			}
-			if ( ! empty( $args['VC'] ) ) {
-				$note .= 'Virtual Card type: ' . $SUBBRAND . ' . <br>';
-			}
+			$note .= $this->checkOrderArgs( $args );
 
 
 			$woocommerce->cart->empty_cart();
@@ -626,6 +542,51 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		self::log( $dienote );
 		wp_redirect( $this->get_return_url( $order ) );
 		exit;
+	}
+
+	/**
+	 * @param array $args
+	 *
+	 * @return string
+	 */
+	private function checkOrderArgs( array $args ) {
+		$orderNote = '';
+		$orderMsg  = [
+			'ORDERID'    => 'Order ID: %s',
+			'AMOUNT'     => 'AMOUNT: %s',
+			'CURRENCY'   => 'Order currency: %s',
+			'PM'         => 'Payment Method: %s',
+			'ACCEPTANCE' => 'Acceptance code returned by acquirer: %s',
+			'STATUS'     => 'Transaction status : %s',
+			'CARDNO'     => 'Masked card number : %s',
+			'PAYID'      => 'Payment reference in EPDQ system: %s',
+			'NCERROR'    => 'Error Code: %s',
+			'BRAND'      => 'Card brand (EPDQ system derives this from the card number) : %s',
+			'ED'         => 'Payer\'s card expiry date : %s',
+			'TRXDATE'    => 'Transaction Date: %s',
+			'CN'         => 'Cardholder/customer name: %s',
+			'IP'         => 'Customer\'s IP: %s',
+			'AAVADDRESS' => 'AAV result for the address: %s',
+			'AAVCHECK'   => 'Result of the automatic address verification: %s',
+			'AAVZIP'     => 'AAV result for the zip code: %s',
+			'BIN'        => 'First 6 digits of credit card number: %s',
+			'CCCTY'      => 'Country where the card was issued: %s',
+			'COMPLUS'    => 'Custom value passed: %s',
+			'CVCCHECK'   => 'Result of the card verification code check: %s',
+			'ECI'        => 'Electronic Commerce Indicator: %s',
+			'FXAMOUNT'   => 'FXAMOUNT: %s',
+			'FXCURRENCY' => 'FXCURRENCY: %s',
+			'IPCTY'      => 'Originating country of the IP address: %s',
+			'SUBBRAND'   => 'SUBBRAND: %s',
+			'VC'         => 'VC: %s'
+		];
+		foreach ( $orderMsg as $key => $msg ) {
+			if ( isset( $args[ $key ] ) && ! empty( $args[ $key ] ) ) {
+				$orderNote .= __( sprintf( $msg, $args[ $key ] ) ) . '</br>';
+			}
+		}
+
+		return $orderNote;
 	}
 
 	/**
