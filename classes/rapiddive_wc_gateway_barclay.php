@@ -13,18 +13,21 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	public const TEST_URL = 'https://mdepayments.epdq.co.uk/ncol/test/orderstandard.asp';
 	public const LIVE_URL = 'https://payments.epdq.co.uk/ncol/prod/orderstandard.asp';
 	public const BARCLAY_PAYMENT_SEPARATOR = ';';
+
 	/**
 	 * Whether or not logging is enabled
 	 *
 	 * @var bool
 	 */
 	public static $log_enabled = false;
+
 	/**
 	 * Logger instance
 	 *
 	 * @var WC_Logger
 	 */
 	public static $log = null;
+
 	/**
 	 * @var string
 	 */
@@ -34,118 +37,147 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @var string
 	 */
 	private $status;
+
 	/**
 	 * @var string
 	 */
 	private $sha_in;
+
 	/**
 	 * @var string
 	 */
 	private $sha_out;
+
 	/**
 	 * @var int|string
 	 */
 	private $sha_method;
+
 	/**
 	 * @var bool
 	 */
 	private $debug;
+
 	/**
 	 * @var string
 	 */
 	private $error_notice;
+
 	/**
 	 * @var int
 	 */
 	private $cat_url;
+
 	/**
 	 * @var string
 	 */
 	private $aavscheck;
+
 	/**
 	 * @var string
 	 */
 	private $cvccheck;
+
 	/**
 	 * @var string
 	 */
 	private $payment_method;
+
 	/**
 	 * @var string
 	 */
 	private $brand_cards;
+
 	/**
 	 * @var string
 	 */
 	private $secure_3d;
+
 	/**
 	 * @var string
 	 */
 	private $method_list;
+
 	/**
 	 * @var string
 	 */
 	private $com_plus;
+
 	/**
 	 * @var string
 	 */
 	private $param_plus;
+
 	/**
 	 * @var string
 	 */
 	private $param_var;
+
 	/**
 	 * @var string
 	 */
 	private $api_user_id;
+
 	/**
 	 * @var string
 	 */
 	private $operation;
+
 	/**
 	 * @var string
 	 */
 	private $api_user_pswd;
+
 	/**
 	 * @var string
 	 */
 	private $notify_url;
+
 	/**
 	 * @var string
 	 */
 	private $pp_format;
+
 	/**
 	 * @var string
 	 */
 	private $pp_title;
+
 	/**
 	 * @var string
 	 */
 	private $BGCOLOR;
+
 	/**
 	 * @var string
 	 */
 	private $TXTCOLOR;
+
 	/**
 	 * @var string
 	 */
 	private $TBLBGCOLOR;
+
 	/**
 	 * @var string
 	 */
 	private $TBLTXTCOLOR;
+
 	/**
 	 * @var string
 	 */
 	private $BUTTONBGCOLOR;
+
 	/**
 	 * @var string
 	 */
 	private $BUTTONTXTCOLOR;
+
 	/**
 	 * @var string
 	 */
 	private $FONTTYPE;
+
 	/**
 	 * @var string
 	 */
@@ -412,7 +444,6 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			default:
 				$shaMethod = 'sha1';
 		}
-
 		return $shaMethod;
 	}
 
@@ -427,34 +458,32 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 *
+	 * Check Barclay Response
+	 * @return bool
+	 * @throws WC_Data_Exception
 	 */
 	public function check_barclay_response() {
 		ob_clean();
 		header( 'HTTP/1.1 200 OK' );
 
-		$datacheck  = [];
-		$datacheck1 = [];
+		$dataCheck  = [];
+		$dataCheck1 = [];
 
 		foreach ( $_REQUEST as $key => $value ) {
 			if ( $value == "" ) {
 				continue;
 			}
-			$datacheck[ $key ]                = $value;
-			$datacheck1[ strtoupper( $key ) ] = strtoupper( $value );
+			$dataCheck[ $key ]                = $value;
+			$dataCheck1[ strtoupper( $key ) ] = strtoupper( $value );
 		}
 
-		if ( empty( $dataCheck['SHASIGN'] ) ) {
+		$verify = $this->checkShaOut( $dataCheck );
+
+		if ( empty( $dataCheck['SHASIGN'] ) || ! $verify ) {
 			wp_die( 'Transaction is unsuccessfull!' );
 		}
 
-		$verify = $this->checkShaOut( $datacheck );
-
-		if ( $verify ) {
-			$this->transaction_successfull( $datacheck1 );
-		} else {
-			wp_die( 'Transaction is unsuccessfull!' );
-		}
+		return $this->transaction_successfull( $dataCheck1 );
 	}
 
 	/**
@@ -487,9 +516,12 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * @param $args
+	 * @param array $args
+	 *
+	 * @return bool
+	 * @throws WC_Data_Exception
 	 */
-	public function transaction_successfull( $args ) {
+	public function transaction_successfull( array $args ) {
 		extract( $args );
 		$order     = new WC_Order( $ORDERID );
 		$statusMsg = sprintf( '<b>Status Code:</b> %s :: %s </br>', $STATUS, $this->get_barclay_status_code( $STATUS ) );
@@ -497,7 +529,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 
 		$acceptedOrderStatus = [ 4, 5, 9, 41, 51, 91 ];
 
-		$orderNote = $this->checkOrderArgs( $args );
+		$orderNote = $this->checkOrderArgs( $args, $order );
 		$died      = '<p>Transection result is uncertain.<p>';
 		$died      .= '<p>Your order is cancelled and your cart is emptied.';
 		$died      .= '</br>Go to your <a href="' . get_permalink(
@@ -524,23 +556,22 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 				case 93:
 				case 52:
 				case 92:
-					$orderNote    .= __( 'Order is failed. </br>' );
-					$cancelStatus = 'failed';
-					if ( $STATUS === 1 ) {
-						$cancelStatus = 'cancelled';
-					}
-					$order->update_status( $cancelStatus, $orderNote );
+					$orderNote .= __( 'Order is failed. </br>' );
+					$order->update_status( 'cancelled', $orderNote );
 					break;
 				default:
-					$order->update_status( 'failed', $died );
+					$order->update_status( 'cancelled', $died );
 					break;
 			}
 		} else {
-			$order->update_status( 'failed', $died );
+			$order->update_status( 'cancelled', $died );
 		}
 		self::log( $died );
 
 		$order->add_order_note( $orderNote );
+		if ( ! $order->get_transaction_id() && isset( $args['PAYID'] ) ) {
+			$order->set_transaction_id( $args['PAYID'] );
+		}
 		if ( isset( WC()->cart ) ) {
 			WC()->cart->empty_cart();
 		}
@@ -568,10 +599,11 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 
 	/**
 	 * @param array $args
+	 * @param WC_Order $order
 	 *
 	 * @return string
 	 */
-	private function checkOrderArgs( array $args ) {
+	private function checkOrderArgs( array $args, WC_Order $order ) {
 		$orderNote = '';
 		$orderMsg  = [
 			'ORDERID'    => 'Order ID: %s',
@@ -605,6 +637,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 		foreach ( $orderMsg as $key => $msg ) {
 			if ( isset( $args[ $key ] ) && ! empty( $args[ $key ] ) ) {
 				$orderNote .= __( sprintf( $msg, $args[ $key ] ) ) . '</br>';
+				update_post_meta( $order->get_id(), '_barclay_' . $key, $args[ $key ] );
 			}
 		}
 
@@ -615,7 +648,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 	 * @param $message
 	 * @param string $level
 	 */
-	public static function log( $message, $level = 'info' ) {
+	public static function log( $message, string $level = 'info' ) {
 		if ( self::$log_enabled ) {
 			if ( self::$log === null ) {
 				self::$log = wc_get_logger();
