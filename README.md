@@ -74,8 +74,9 @@ We would also recommend that you set up the "test" Barclays back office and enab
 1. Resolve code level issues.
 
 = 2.3.7 =
-1. Auto Generate SHA512.
+1. Auto Generate SHA secret.
 2. Description Changes.
+3. Minor Updates
 
 ### ePDQ Documentation
 [ePDQ Back Office Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_Back-Office_EN.pdf)
