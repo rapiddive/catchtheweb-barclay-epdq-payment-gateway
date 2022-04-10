@@ -3,8 +3,8 @@ Contributors: vinayshah5
 Donate link: https://www.paypal.me/vinayshah5
 Tags: woocommerce, payment gateway, barclay, ePDQ, ecommerce
 Requires at least: 4.9.6
-Tested up to: 5.9.2
-Stable tag: 5.9.2
+Tested up to: 5.9.3
+Stable tag: 5.9.3
 License: GPLv3 or later License
 URI: http://www.gnu.org/licenses/gpl-3.0.html
 WC requires at least: 5.2.1
