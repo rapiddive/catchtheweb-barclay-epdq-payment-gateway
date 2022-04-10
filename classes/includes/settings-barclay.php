@@ -5,20 +5,21 @@ defined( 'ABSPATH' ) || exit;
 const AMERICAN_EXPRESS       = 'American Express';
 const SELECT_PAYMENT_METHODS = 'Select Payment Methods';
 
-if (!function_exists('generateRandomString')) {
+if ( ! function_exists( 'generateRandomString' ) ) {
 	function generateRandomString( $length = 10 ) {
 		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$charactersLength = strlen( $characters );
+		$randomInt        = random_int( 0, 99 );
 		$randomString     = '';
 		for ( $i = 0; $i < $length; $i ++ ) {
-			$randomString .= $characters[ rand( 0, $charactersLength - 1 ) ];
+			$randomString .= $characters[ rand( 0, $charactersLength - $randomInt ) ];
 		}
 
 		return $randomString;
 	}
 }
 
-if (!function_exists('generateNewHash')) {
+if ( ! function_exists( 'generateNewHash' ) ) {
 	function generateNewHash() {
 		return hash( 'sha512', generateRandomString( 5 ) );
 	}
