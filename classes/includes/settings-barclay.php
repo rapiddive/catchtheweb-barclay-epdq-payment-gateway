@@ -5,6 +5,26 @@ defined( 'ABSPATH' ) || exit;
 const AMERICAN_EXPRESS       = 'American Express';
 const SELECT_PAYMENT_METHODS = 'Select Payment Methods';
 
+if (!function_exists('generateRandomString')) {
+	function generateRandomString( $length = 10 ) {
+		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen( $characters );
+		$randomString     = '';
+		for ( $i = 0; $i < $length; $i ++ ) {
+			$randomString .= $characters[ rand( 0, $charactersLength - 1 ) ];
+		}
+
+		return $randomString;
+	}
+}
+
+if (!function_exists('generateNewHash')) {
+	function generateNewHash() {
+		return hash( 'sha512', generateRandomString( 5 ) );
+	}
+}
+
+
 /**
  * Settings for Barclay Payment Gateway
  */
@@ -64,15 +84,15 @@ return apply_filters(
 		'description'    => [
 			'title'       => __( 'Description', 'woocommerce' ),
 			'type'        => 'textarea',
-			'description' => __( 'Description of the payment process. This description will be visible throuhout the site and the payment page.',
+			'description' => __( 'The payment procedure is described in detail. This description will be visible throughout the site, as well as on the payment page.',
 				'woocommerce' ),
-			'default'     => 'Use the payment processor of barclay bank and checkout with your debit/credit card.',
+			'default'     => 'Use Barclay Bank\'s payment platform and pay with your debit or credit card.',
 			'desc_tip'    => true,
 		],
 		'access_key'     => [
 			'title'       => __( 'PSPID', 'woocommerce' ),
 			'type'        => 'text',
-			'description' => __( 'The PSPID for your Barclay account. This is the id which you use to login to the admin panel of the barclay bank.',
+			'description' => __( 'Your Barclay account\'s PSPID. This is the id you use to access the Barclay Bank admin panel.',
 				'woocommerce' ),
 			'default'     => '',
 			'desc_tip'    => true,
@@ -81,7 +101,7 @@ return apply_filters(
 			'title'       => __( 'Store Status', 'woocommerce' ),
 			'type'        => 'select',
 			'options'     => [ 'test' => 'Test Environment', 'live' => 'Live Store' ],
-			'description' => __( 'The status of your store indicates whether you actually ready to run your shop or if it\'s still a test environment. If the test is selected then no payments will be processed. For details please refer to the user guide provided by the Barclay EPDQ service.',
+			'description' => __( 'The status of your store indicates whether you are ready to run your business or if it is still in testing mode. No payments will be processed if the test is selected. Please see the user guide provided by the Barclay EPDQ service for more information.',
 				'woocommerce' ),
 			'default'     => '',
 			'desc_tip'    => true,
@@ -89,26 +109,26 @@ return apply_filters(
 		'sha_in'         => [
 			'title'       => __( 'SHA-IN Passphrase', 'woocommerce' ),
 			'type'        => 'text',
-			'description' => __( 'The SHA-IN signature will encode the parameter passed to the payment processor via the hidden fields to ensure better security.',
+			'description' => __( 'To improve security, the SHA-IN signature will encode the parameter passed to the payment processor via the hidden fields.',
 				'woocommerce' ),
-			'default'     => '',
+			'default'     => generateNewHash(),
 			'desc_tip'    => true,
 		],
 		'sha_out'        => [
 			'title'       => __( 'SHA-OUT Passphrase', 'woocommerce' ),
 			'type'        => 'text',
-			'description' => __( 'The SHA-OUT signature will encode the parameter passed to the redirection url from the payment processor to ensure better security.',
+			'description' => __( 'To improve security, the SHA-OUT signature will encrypt the parameter supplied from the payment processor to the redirection url.',
 				'woocommerce' ),
-			'default'     => 0,
+			'default'     => generateNewHash(),
 			'desc_tip'    => true,
 		],
 		'sha_method'     => [
 			'title'       => __( 'SHA encryption method', 'woocommerce' ),
 			'type'        => 'select',
 			'options'     => [ 0 => 'SHA-1', 1 => 'SHA-256', 2 => 'SHA-512' ],
-			'description' => __( 'SHA encryption method - this needs to be similar to what you have set in the EPDQ backoffice.',
+			'description' => __( 'SHA encryption technique - this must be the same as what you have configured in the EPDQ backoffice.',
 				'woocommerce' ),
-			'default'     => '',
+			'default'     => 2,
 			'desc_tip'    => true,
 		],
 		'error_notice'   => [

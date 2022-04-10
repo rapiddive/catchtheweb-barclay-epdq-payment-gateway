@@ -444,6 +444,7 @@ class RapidDive_WC_Gateway_Barclay extends WC_Payment_Gateway {
 			default:
 				$shaMethod = 'sha1';
 		}
+
 		return $shaMethod;
 	}
 
