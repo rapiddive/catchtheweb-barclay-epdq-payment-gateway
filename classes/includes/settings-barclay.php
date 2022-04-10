@@ -8,14 +8,9 @@ const SELECT_PAYMENT_METHODS = 'Select Payment Methods';
 if ( ! function_exists( 'generateRandomString' ) ) {
 	function generateRandomString( $length = 10 ) {
 		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$charactersLength = strlen( $characters );
-		$randomInt        = random_int( 0, 99 );
-		$randomString     = '';
-		for ( $i = 0; $i < $length; $i ++ ) {
-			$randomString .= $characters[ rand( 0, $charactersLength - $randomInt ) ];
-		}
+		$salt = random_bytes($length);
 
-		return $randomString;
+		return hash_pbkdf2("sha256", $characters, $salt, 20000);
 	}
 }
 
