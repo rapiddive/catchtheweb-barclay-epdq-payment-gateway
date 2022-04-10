@@ -10,18 +10,18 @@ URI: http://www.gnu.org/licenses/gpl-3.0.html
 WC requires at least: 5.2.1
 WC tested up to: 6.3.1
 
-Barclay ePDQ Payment Gateway is empowered to integrate Barclay CARD ePDQ payment gateway with woo commerce.
+Barclay ePDQ Payment Gateway has the ability to interface with WooCommerce using Barclay CARD ePDQ Payment Gateway.
 
 == Description ==
-Barclay card ePDQ Payment gateway is an easy way to integrate ePDQ payment gateway from Barclay. It is tested on test framework. 
+The Barclay card ePDQ Payment Gateway is a simple method to connect Barclay's ePDQ payment gateway. It has been put through its paces using a test framework.
 
 Note on use of plugin
 * This Plugin works with woo commerce store only.
 
 == License & Legal ==
 
-RapidDive shall not be liable for any direct or indirect loss or damages you may incur or suffer arising out of or in connection with your use of the service or a linked service which shall include without limitation: 
-* Delay or inability to use the service or a Linked service 
+RapidDive will not be liable for any direct or indirect loss or damages you may experience as a result of or in connection with your use of the service or a connected service, including but not limited to:
+* Inability or delay in using the service or a Linked service
 * Reliance upon Third Party Content 
 * Loss of confidentiality 
 * Termination of your access 
@@ -74,6 +74,10 @@ We would also recommend that you set up the "test" Barclays back office and enab
 
 = 2.3.6 =
 1. Resolve code level issues.
+
+= 2.3.7 =
+1. Auto Generate SHA512.
+2. Description Changes.
 
 == ePDQ Documentation ==
 [ePDQ Back Office Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_Back-Office_EN.pdf)
