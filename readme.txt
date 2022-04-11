@@ -80,6 +80,9 @@ We would also recommend that you set up the "test" Barclays back office and enab
 2. Description Changes.
 3. Minor Updates
 
+= 2.3.8 =
+1. Bugfix
+
 == ePDQ Documentation ==
 [ePDQ Back Office Guide](https://mdepayments.epdq.co.uk/ncol/ePDQ_Back-Office_EN.pdf)
 [ePDQ User Manager User Guide](https://mdepayments.epdq.co.uk/Ncol/ePDQ_USR_EN.pdf)
